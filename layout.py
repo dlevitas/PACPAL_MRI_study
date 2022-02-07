@@ -3,7 +3,13 @@ import random
 from config import *
 
 
-def enviroment_setup(trial):
+def enviroment_setup(rand_num):
+    """Determines which grid is used for the trial as well as the player, ghosts,
+    and dots locations. Since there are a variety of options to choose from, this
+    information is randomized when a new trial is initialized."""
+    
+    # generate random seed
+    random.seed(rand_num)
 
     grid_options = []
 
@@ -54,12 +60,9 @@ def enviroment_setup(trial):
             }
 
 
-    # Combine grid options
+    # combine grid options
     grid_options.append([gridA, gridB])
     grid_options = [x for y in grid_options for x in y] # flatten list of dics
-
-    # generate random seed based on trial number
-    random.seed(trial)
 
     # randomly select a grid option
     grid_data = random.choice(grid_options)
@@ -77,7 +80,6 @@ def enviroment_setup(trial):
     slime1_start_pos = random.choice(grid_data["slime_start_pos"])
     slime2_start_pos = random.choice([x for x in grid_data["slime_start_pos"] if x != slime1_start_pos])
     slimes_start_pos = [slime1_start_pos, slime2_start_pos]
-
 
     # get all intersections (2-way, 3-way, 4-way) and horizontal and vertical
     horizontal = []
@@ -128,11 +130,16 @@ def enviroment_setup(trial):
 
     dots_pos = [x[0] for x in intersection_2way+intersection_3way+intersection_4way if x[0] != player_start_pos]
     dots_pos = random.sample(dots_pos, 15)
+#    print("")
+#    print(rand_num, player_start_pos, slimes_start_pos, dots_pos)
+#    print("")
 
     return grid, player_start_pos, slimes_start_pos, dots_pos, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way
 
 
 def draw_enviroment(screen, grid):
+    """Creates the grid."""
+    
     for i, row in enumerate(grid):
         for j, item in enumerate(row):
             if item == 1:
@@ -172,23 +179,3 @@ def draw_enviroment(screen, grid):
                     pygame.draw.line(screen,BLUE ,[j*32,i*32+32],[j*32+32,i*32+32], 3)
                 else:
                     pass
-
-
-# dan =  ((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-#         (0, 3, 1, 1, 4, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 4, 1, 1, 4, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 0),
-#         (0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 4, 1, 1, 4, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 5, 1, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 1, 0),
-#         (0, 2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 1, 0),
-#         (0, 3, 1, 1, 4, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 4, 3, 0),
-#         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))

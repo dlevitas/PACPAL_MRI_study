@@ -1,12 +1,14 @@
 from __future__ import division
 import os
+import game
 import pygame
 import pandas as pd
 from config import *
-from game import Game
 
 
 def quit_check():
+    """Quit game is escape key is pressed."""
+    
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -14,6 +16,8 @@ def quit_check():
 
 
 class Instructions(object):
+    """Display instructions during different parts of game."""
+    
     def __init__(self, period, buffer_time, pre_run_elapsed_time, run_elapsed_time, trial_end_reason, run_length, end_buffer_time):
         self.text = "Please wait for the scan to begin"
         self.font_color = WHITE
@@ -65,12 +69,9 @@ class Instructions(object):
                 return False
             if pygame.time.get_ticks() >= self.run_elapsed_time + self.buffer_time*1000:
                 return False
-            # if pygame.time.get_ticks() >= pygame.time.get_ticks() - self.pre_run_elapsed_time + self.buffer_time*1000
 
         elif self.period == "end":
             self.text = "This run will end in several seconds"
-            # print(self.cum_run_time, self.run_length*60*1000)
-            # if pygame.time.get_ticks() >= self.run_length*60*1000 + self.pre_run_elapsed_time:
             if self.cum_run_time >= self.end_buffer_time*1000:
                 return False
 
@@ -97,6 +98,9 @@ class Instructions(object):
 
 
 def participant_info():
+    """Allows experimenter to enter participant ID and run ID and checks to 
+    ensure that they are proper (e.g. no non-alphanumeric characters allowed)."""
+    
     print("Enter subject ID:")
     s = input()
 
@@ -121,6 +125,9 @@ def participant_info():
 
 
 def save_data(data_dir, subID, runID, trial, game, trial_info_list):
+    """Saves data to TSV file. A file is generated for each trial of each run
+    of each subject."""
+    
     if not os.path.isfile("{}/sub-{}/run-{}_trial-{}.tsv".format(data_dir, subID, runID, trial)):
         df = pd.DataFrame(trial_info_list)
         df.to_csv("{}/sub-{}/run-{}_trial-{}.tsv".format(data_dir, subID, runID, trial),
