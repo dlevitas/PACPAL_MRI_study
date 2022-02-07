@@ -12,13 +12,13 @@ data_dir = os.path.join(os.getcwd(), "data") # don't change
 log_interval = 1 # sec (default is 1; don't change. Ideally should reflect the scanner TR)
 
 run_length = 12 # min (default is 12)
-start_run_buffer_time = 2 # sec (default is 8)
-ITI_buffer_time = 2 # sec (default is 6)
+start_run_buffer_time = 8 # sec (default is 8)
+ITI_buffer_time = 6 # sec (default is 6)
 end_run_buffer_time = 8 # sec (default is 8)
 
-safe_chase_level = 0 # an integer ranging from 1-100 (default is 20)
-threat_chase_level = 100  # an integer ranging from 1-100 (default is 80)
-sal_period_len = 10 # sec (default is 15)
+safe_chase_level = 20 # an integer ranging from 1-100 (default is 20)
+threat_chase_level = 80  # an integer ranging from 1-100 (default is 80)
+sal_period_len = 15 # sec (default is 15)
 player_speed = 1 # (default is 1; value MUST be integer and not decimal)
 
 # Begin
