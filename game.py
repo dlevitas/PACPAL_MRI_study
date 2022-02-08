@@ -47,8 +47,8 @@ class Game(object):
 
         # Create the ghosts
         self.ghosts = pygame.sprite.Group()
-        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, 1, self.player_speed))
-        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -1, self.player_speed))
+        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_speed, self.player_speed))
+        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_speed, self.player_speed))
 
         # Add the dots inside the game
         for d in dot_locs:
@@ -164,14 +164,14 @@ class Game(object):
         info["player_loc"] = self.player.rect.topleft
         info["player_speed"] = self.player_speed
 
-        for ghost in self.ghosts.sprites():
-            ghost_locations.append(ghost.rect.topleft)
-            ghost_dist_from_player = distance.cityblock(list(self.player.rect.topleft), list(ghost.rect.topleft))/32
+        for g in self.ghosts.sprites():
+            ghost_locations.append(g.rect.topleft)
+            ghost_dist_from_player = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))/36
             ghost_dist_from_player = int(round(ghost_dist_from_player, 0))
             ghost_distances_from_player.append(ghost_dist_from_player)
 
         for dot_loc in self.dot_locs:
-            dot_dist_from_player = distance.cityblock(list(self.player.rect.topleft),list(dot_loc))/32
+            dot_dist_from_player = distance.cityblock(list(self.player.rect.topleft),list(dot_loc))/36
             dot_dist_from_player = int(round(dot_dist_from_player, 0))
             dot_distances_from_player.append(dot_dist_from_player)
 

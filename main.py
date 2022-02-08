@@ -16,10 +16,10 @@ start_run_buffer_time = 8 # sec (default is 8)
 ITI_buffer_time = 6 # sec (default is 6)
 end_run_buffer_time = 8 # sec (default is 8)
 
-safe_chase_level = 20 # an integer ranging from 1-100 (default is 20)
-threat_chase_level = 80  # an integer ranging from 1-100 (default is 80)
+safe_chase_level = 0 # an integer ranging from 1-100 (default is 0)
+threat_chase_level = 100  # an integer ranging from 1-100 (default is 100)
 sal_period_len = 15 # sec (default is 15)
-player_speed = 1 # (default is 1; value MUST be integer and not decimal)
+player_speed = 3 # (default is 3; can be either 2 or 3)
 
 # Begin
 def main():
@@ -62,17 +62,17 @@ def main():
 
     # salience period variables
     sal_period_info = {"safe": safe_chase_level, "threat": threat_chase_level}
-    sal_period, slime_chase_level = random.choice(list(sal_period_info.items()))
+    sal_period, ghost_chase_level = random.choice(list(sal_period_info.items()))
 
     # trial variables information
     trial = 1
     trial_info_list = []
-    rand_num = random.randrange(100) # used to set seed that randomizes grid and player/slimes locations
+    rand_num = random.randrange(100) # used to set seed that randomizes grid and player/ghosts locations
 
     # create game and instructions objects
-    grid, player_start_pos, slimes_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
+    grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-    game = Game(player_speed, grid, player_start_pos, slimes_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info)
+    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info)
 
     instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time)
 
@@ -86,7 +86,7 @@ def main():
 
     # -------- Experiment run loop -----------
     while not run_over:
-        clock.tick(60) # limit to 60 frames/sec
+        clock.tick(30) # limit to 30 frames/sec
 
         cum_run_time = pygame.time.get_ticks() - pre_run_elapsed_time
         sal_period_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000
@@ -100,7 +100,7 @@ def main():
         # process events (keystrokes, mouse clicks, etc) and check if run ends
         run_over = game.process_events()
         # game logic is here, including checking for when the trial ends
-        trial_over = game.run_logic(rand_num, sal_period, slime_chase_level)
+        trial_over = game.run_logic(rand_num, sal_period, ghost_chase_level)
         # draw the current frame
         game.display_frame(screen)
 
@@ -115,7 +115,7 @@ def main():
 
         if not trial_over:
             if sal_period_timer/sal_period_timer_index >= sal_period_len*1000:
-                sal_period, slime_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
+                sal_period, ghost_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
                 sal_period_timer_index += 1
 
         else: # trial ends, enter inter trial interval (ITI) buffer period
@@ -134,7 +134,7 @@ def main():
             # change salience period if player lasted more than 3 sec (3000 ms)
             if sal_period_timer/sal_period_timer_index > 3000 + ITI_buffer_time*1000:
                 # print('cool')
-                sal_period, slime_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
+                sal_period, ghost_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
                 sal_period_timer_index += 1
 
         # stop game several seconds before the end of the run

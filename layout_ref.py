@@ -32,8 +32,8 @@ def enviroment_setup(rand_num):
                         (0, 3, 1, 1, 4, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 4, 1, 1, 3, 0),
                         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
              "id": "A",
-             "player_start_pos": [(36, 36), (36, 576), (792, 36), (792, 576)],
-             "slime_start_pos": [(288, 216), (540, 216), (288, 396), (540, 396)]
+             "player_start_pos": [(32, 32), (32, 512), (704, 32), (704, 512)],
+             "slime_start_pos": [(256, 192), (480, 192), (256, 352), (480, 352)]
              }
 
     gridB = {"grid":   ((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -55,8 +55,8 @@ def enviroment_setup(rand_num):
                         (0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 3, 0),
                         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
              "id": "B",
-             "player_start_pos": [(36, 36), (36, 576), (792, 36), (792, 576)],
-             "slime_start_pos": [(360, 180), (360, 360), (648, 468)]
+             "player_start_pos": [(32, 32), (32, 512), (704, 32), (704, 512)],
+             "slime_start_pos": [(320, 160), (320, 320), (576, 416)]
             }
 
 
@@ -94,13 +94,13 @@ def enviroment_setup(rand_num):
                 pos_type = "horizontal"
                 upVal, downVal, leftVal, rightVal = 0, 0, 1, 1
                 legal_directions = ["left", "right"]
-                horizontal.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
+                horizontal.append(((j*32, i*32), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
 
             elif item == 2:
                 pos_type = "vertical"
                 upVal, downVal, leftVal, rightVal = 2, 2, 0, 0
                 legal_directions = ["up", "down"]
-                vertical.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
+                vertical.append(((j*32, i*32), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
 
             elif item in [3, 4, 5]:
                 legal_directions = []
@@ -120,13 +120,13 @@ def enviroment_setup(rand_num):
 
                 if item == 3:
                     pos_type = "2way"
-                    intersection_2way.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
+                    intersection_2way.append(((j*32, i*32), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
                 elif item == 4:
                     pos_type = "3way"
-                    intersection_3way.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
+                    intersection_3way.append(((j*32, i*32), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
                 elif item == 5:
                     pos_type = "4way"
-                    intersection_4way.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
+                    intersection_4way.append(((j*32, i*32), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
 
     dots_pos = [x[0] for x in intersection_2way+intersection_3way+intersection_4way if x[0] != player_start_pos]
     dots_pos = random.sample(dots_pos, 15)
@@ -140,11 +140,11 @@ def draw_enviroment(screen, grid):
     for i, row in enumerate(grid):
         for j, item in enumerate(row):
             if item == 1:
-                pygame.draw.line(screen, BLUE , [j*36, i*36], [j*36+36, i*36], 3) # line drawn left
-                pygame.draw.line(screen, BLUE , [j*36, i*36+36], [j*36+36, i*36+36], 3) # line drawn right
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32, i*32], 3) # line drawn left
+                pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32, i*32+32], 3) # line drawn right
             elif item == 2:
-                pygame.draw.line(screen, BLUE , [j*36, i*36], [j*36, i*36+36], 3) # line drawn up
-                pygame.draw.line(screen, BLUE , [j*36+36, i*36], [j*36+36, i*36+36], 3) # line drawn down
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32, i*32+32], 3) # line drawn up
+                pygame.draw.line(screen, BLUE , [j*32+32, i*32], [j*32+32, i*32+32], 3) # line drawn down
             elif item in [3, 4]:
                 upVal = grid[i-1][j]
                 downVal = grid[i+1][j]
@@ -153,26 +153,26 @@ def draw_enviroment(screen, grid):
 
                 # 2-way intersection
                 if [upVal, downVal, leftVal, rightVal] == [0, 2, 0, 1]: # down<-->right
-                    pygame.draw.line(screen, BLUE , [j*36, i*36], [j*36+36, i*36], 3)
-                    pygame.draw.line(screen, BLUE , [j*36, i*36], [j*36, i*36+36], 3)
+                    pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32, i*32], 3)
+                    pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32, i*32+32], 3)
                 elif [upVal, downVal, leftVal, rightVal] == [2, 0, 0, 1]: # up<-->right
-                    pygame.draw.line(screen, BLUE , [j*36, i*36+36], [j*36+36, i*36+36], 3)
-                    pygame.draw.line(screen, BLUE , [j*36, i*36], [j*36, i*36+36], 3)
+                    pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32, i*32+32], 3)
+                    pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32, i*32+32], 3)
                 elif [upVal, downVal, leftVal, rightVal] == [0, 2, 1, 0]: # down<-->left
-                    pygame.draw.line(screen, BLUE , [j*36, i*36], [j*36+36, i*36], 3)
-                    pygame.draw.line(screen,BLUE ,[j*36+36,i*36],[j*36+36,i*36+36],3)
+                    pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32, i*32], 3)
+                    pygame.draw.line(screen,BLUE ,[j*32+32,i*32],[j*32+32,i*32+32],3)
                 elif [upVal,downVal,leftVal,rightVal] == [2,0,1,0]: # up<-->left
-                    pygame.draw.line(screen,BLUE ,[j*36,i*36+36],[j*36+36,i*36+36],3)
-                    pygame.draw.line(screen,BLUE ,[j*36+36,i*36],[j*36+36,i*36+36],3)
+                    pygame.draw.line(screen,BLUE ,[j*32,i*32+32],[j*32+32,i*32+32],3)
+                    pygame.draw.line(screen,BLUE ,[j*32+32,i*32],[j*32+32,i*32+32],3)
 
                 # 3-way intersection
                 elif [upVal,downVal,leftVal,rightVal] == [2,2,0,1]: # up<-->down<-->right
-                    pygame.draw.line(screen,BLUE ,[j*36,i*36],[j*36,i*36+36],3)
+                    pygame.draw.line(screen,BLUE ,[j*32,i*32],[j*32,i*32+32],3)
                 elif [upVal,downVal,leftVal,rightVal] == [0,2,1,1]: # down<-->left<-->right
-                    pygame.draw.line(screen,BLUE ,[j*36,i*36],[j*36+36,i*36],3)
+                    pygame.draw.line(screen,BLUE ,[j*32,i*32],[j*32+32,i*32],3)
                 elif [upVal,downVal,leftVal,rightVal] == [2,2,1,0]: # up<-->down<-->left
-                    pygame.draw.line(screen,BLUE ,[j*36+36,i*36],[j*36+36,i*36+36],3)
+                    pygame.draw.line(screen,BLUE ,[j*32+32,i*32],[j*32+32,i*32+32],3)
                 elif [upVal,downVal,leftVal,rightVal] == [2,0,1,1]: # up<-->left<-->right
-                    pygame.draw.line(screen,BLUE ,[j*36,i*36+36],[j*36+36,i*36+36], 3)
+                    pygame.draw.line(screen,BLUE ,[j*32,i*32+32],[j*32+32,i*32+32], 3)
                 else:
                     pass

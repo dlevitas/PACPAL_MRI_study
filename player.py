@@ -26,14 +26,14 @@ class Player(pygame.sprite.Sprite):
         img = pygame.image.load("walk.png").convert()
 
         # create the animations objects
-        self.move_right_animation = Animation(img, 32, 32)
-        self.move_left_animation = Animation(pygame.transform.flip(img, True, False), 32, 32)
-        self.move_up_animation = Animation(pygame.transform.rotate(img, 90), 32, 32)
-        self.move_down_animation = Animation(pygame.transform.rotate(img, 270), 32, 32)
+        self.move_right_animation = Animation(img, 36, 36)
+        self.move_left_animation = Animation(pygame.transform.flip(img, True, False), 36, 36)
+        self.move_up_animation = Animation(pygame.transform.rotate(img, 90), 36, 36)
+        self.move_down_animation = Animation(pygame.transform.rotate(img, 270), 36, 36)
 
         # load explosion image
         img = pygame.image.load("explosion.png").convert()
-        self.explosion_animation = Animation(img, 32, 32)
+        self.explosion_animation = Animation(img, 36, 36)
 
         # save the player image
         self.player_image = pygame.image.load(filename).convert()
@@ -63,7 +63,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.change_x
             self.rect.y += self.change_y
 
-            self.health -= 0.05
+#            self.health -= 0.05
+            self.health -= 0.10
 
             # this will stop the player from moving through the blue lines
             for block in pygame.sprite.spritecollide(self, horizontal_blocks, False):
@@ -89,22 +90,22 @@ class Player(pygame.sprite.Sprite):
 
             # this will cause the animation to start
             if self.change_x > 0:
-                self.move_right_animation.update(5)
+                self.move_right_animation.update(10)
                 self.image = self.move_right_animation.get_current_image()
             elif self.change_x < 0:
-                self.move_left_animation.update(5)
+                self.move_left_animation.update(10)
                 self.image = self.move_left_animation.get_current_image()
 
             if self.change_y > 0:
-                self.move_down_animation.update(5)
+                self.move_down_animation.update(10)
                 self.image = self.move_down_animation.get_current_image()
             elif self.change_y < 0:
-                self.move_up_animation.update(5)
+                self.move_up_animation.update(10)
                 self.image = self.move_up_animation.get_current_image()
         else:
             if self.explosion_animation.index == self.explosion_animation.get_length() -1:
                 pygame.time.wait(100)
-            self.explosion_animation.update(5)
+            self.explosion_animation.update(10)
             self.image = self.explosion_animation.get_current_image()
             self.trial_over = True
 
