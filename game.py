@@ -28,7 +28,7 @@ class Game(object):
         self.dots_group = pygame.sprite.Group()
 
         # specify direction player is moving
-        self.player.direction_moving = "still"
+        self.player.direction_facing = "still"
 
         # specify which grid is being used for this trial
         self.grid_id = grid_id
@@ -61,25 +61,24 @@ class Game(object):
                 if event.key == pygame.K_ESCAPE: # exit program entirely
                     self.run_over = True
                     return True
-
                 elif event.key == right_key:
                     self.player.move_right()
-                    self.player.direction_moving = "right"
+                    self.player.direction_facing = "right"
 
                 elif event.key == left_key:
                     self.player.move_left()
-                    self.player.direction_moving = "left"
+                    self.player.direction_facing = "left"
 
                 elif event.key == up_key:
                     self.player.move_up()
-                    self.player.direction_moving = "up"
+                    self.player.direction_facing = "up"
 
                 elif event.key == down_key:
                     self.player.move_down()
-                    self.player.direction_moving = "down"
+                    self.player.direction_facing = "down"
 
             elif event.type == pygame.KEYUP:
-                self.player.direction_moving = "still"
+#                self.player.direction_facing = "still"
                 if event.key == right_key:
                     self.player.stop_move_right()
                 elif event.key == left_key:
@@ -175,17 +174,25 @@ class Game(object):
             dot_dist_from_player = int(round(dot_dist_from_player, 0))
             dot_distances_from_player.append(dot_dist_from_player)
 
+        
+        if len(ghost_distances_from_player) == 2:
+            min_ghost_dist_from_player = min(ghost_distances_from_player)
+        else:
+            min_ghost_dist_from_player = 0 
+            
+        
         info["ghosts_locs"] = ghost_locations
         info["dots_locs"] = self.dot_locs
         info["ghosts_dists_from_player"] = ghost_distances_from_player
         info["dots_dists_from_player"] = dot_distances_from_player
         info["cum_ghosts_dist"] = sum(info["ghosts_dists_from_player"])
+        info["min_ghost_dist_from_player"] = min_ghost_dist_from_player
         info["salience_period"] = self.sal_period
         info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
         info["ghosts_speed"] = self.ghosts.sprites()[0].speed
-        info["player_movement"] = self.player.direction_moving
+        info["player_direction_facing"] = self.player.direction_facing
         info["score"] = self.score
-        info["health"] = self.player.health
+        info["health"] = round(self.player.health, 2)
 
         return info
 
