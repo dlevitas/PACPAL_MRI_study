@@ -21,4 +21,4 @@ Documentation for the PACMAN game:
 
 8). If player dies < 3 seconds into the the salience period (safe, threat), the following trial will keep the same period. The reason for this is that the player didn't have much time to interact in the new period before the trial ended. 
 
-9). Movement keys can be found in the config.py file and modifed as you see fit. 
+9). Movement keys can be found in the config.py file and modifed as you see fit.
