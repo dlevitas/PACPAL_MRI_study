@@ -64,7 +64,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.change_y
 
 #            self.health -= 0.05
-            self.health -= 0.10
+            self.health -= 0.1
 
             # this will stop the player from moving through the blue lines
             for block in pygame.sprite.spritecollide(self, horizontal_blocks, False):

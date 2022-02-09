@@ -62,31 +62,31 @@ class Game(object):
                     self.run_over = True
                     return True
 
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == right_key:
                     self.player.move_right()
                     self.player.direction_moving = "right"
 
-                elif event.key == pygame.K_LEFT:
+                elif event.key == left_key:
                     self.player.move_left()
                     self.player.direction_moving = "left"
 
-                elif event.key == pygame.K_UP:
+                elif event.key == up_key:
                     self.player.move_up()
                     self.player.direction_moving = "up"
 
-                elif event.key == pygame.K_DOWN:
+                elif event.key == down_key:
                     self.player.move_down()
                     self.player.direction_moving = "down"
 
             elif event.type == pygame.KEYUP:
                 self.player.direction_moving = "still"
-                if event.key == pygame.K_RIGHT:
+                if event.key == right_key:
                     self.player.stop_move_right()
-                elif event.key == pygame.K_LEFT:
+                elif event.key == left_key:
                     self.player.stop_move_left()
-                elif event.key == pygame.K_UP:
+                elif event.key == up_key:
                     self.player.stop_move_up()
-                elif event.key == pygame.K_DOWN:
+                elif event.key == down_key:
                     self.player.stop_move_down()
 
         return False
