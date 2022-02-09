@@ -19,6 +19,4 @@ Documentation for the PACMAN game:
 
 7). All timing information is handled by the pygame.time.get_ticks() function, which uses milliseconds. Thus, the experiment game uses milliseconds for timing, but you can set experiment variables in minutes or minutes, which will be converted.
 
-8). If player dies < 3 seconds into the the salience period (safe, threat), the following trial will keep the same period. The reason for this is that the player didn't have much time to interact in the new period before the trial ended. 
-
-Here is a test
+8). If player dies < 3 seconds into the the salience period (safe, threat), the following trial will keep the same period. The reason for this is that the player didn't have much time to interact in the new period before the trial ended.
