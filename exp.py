@@ -91,8 +91,17 @@ class Instructions(object):
 
         if self.period != "pre":
             pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH/2.5, SCREEN_HEIGHT/1.8, self.countdown/2, 15))
-
-        screen.blit(label, (posX, posY))
+            screen.blit(label, (posX, posY))
+        else:
+            label2 = self.font.render("* To move DOWN, hold down the thumb button", True, self.select_color)
+            label3 = self.font.render("* To move LEFT, hold down the index finger button", True, self.select_color)
+            label4 = self.font.render("* To move UP, hold down the middle finger button", True, self.select_color)
+            label5 = self.font.render("* To move RIGHT, hold down the ring finger button", True, self.select_color)
+            screen.blit(label, (posX, posY-80))
+            screen.blit(label2, (posX, posY+20))
+            screen.blit(label3, (posX, posY+40))
+            screen.blit(label4, (posX, posY+60))
+            screen.blit(label5, (posX, posY+80))
 
         pygame.display.flip()
 
