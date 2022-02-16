@@ -82,7 +82,7 @@ class ghost(pygame.sprite.Sprite):
             # tracking/chasing info for ghosts
             if pos_type in ["2way", "3way", "4way"]:
                 if self.sal_period == "threat":
-                    self.speed = random.choice(self.speed_options[1:])
+                    self.speed = random.choice(self.speed_options)
                 else:
                     self.speed = random.choice(self.speed_options[:2]) # don't let ghosts be faster than player during safe period
                 
