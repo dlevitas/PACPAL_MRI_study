@@ -119,7 +119,6 @@ def main():
             if not len(trial_info_list): # let first row of log be the trial onset information
                 info = game.log_information()
                 info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
-                print(info["cum_run_time"])
                 trial_info_list.append(info)
             
             logging_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - (ITI_buffer_time*1000)*ITI_index
