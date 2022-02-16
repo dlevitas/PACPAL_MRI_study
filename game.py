@@ -111,7 +111,7 @@ class Game(object):
             if len(block_hit_list) > 0:
                 eaten_dot = min(self.dot_locs, key=lambda c: (c[0]- self.player.rect.topleft[0])**2 + (c[1]-self.player.rect.topleft[1])**2)
                 self.dot_locs = [x for x in self.dot_locs if x != eaten_dot]
-                self.bonus += 0.02
+                self.bonus += 0.01
                 self.player.health += 20
 
             block_hit_list = pygame.sprite.spritecollide(self.player, self.ghosts, True)
