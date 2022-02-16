@@ -6,16 +6,17 @@ from ghosts import Block, Ellipse, ghost
 from layout import enviroment_setup, draw_enviroment
 
 class Game(object):
-    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info):
+    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period):
 
         self.font = pygame.font.Font(None, 40)
         self.run_over = True
         self.trial_over = True
-        self.score = 0
+        self.bonus = bonus
         self.dot_locs = dot_locs # location of dots on grid
-        self.font = pygame.font.Font(None, 35) # font for displaying the score on the screen
-        self.trial_end_reason = "killed" # killed, starved, or won
+        self.font = pygame.font.Font(None, 35) # font for displaying the bonus on the screen
+        self.trial_end_reason = "N/A" # caught, no_health, or won
         self.player_speed = player_speed # how fast player can move
+        self.sal_period = sal_period
 
         # Create the player
         self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_speed)
@@ -35,6 +36,8 @@ class Game(object):
 
         # Set the enviroment:
         self.grid = grid
+        
+        self.health = 100
 
         self.all_points_info = all_points_info
 
@@ -97,7 +100,7 @@ class Game(object):
         if self.trial_over:
             grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info)
+            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period)
             self.run_over = False
             self.trial_over = False
 
@@ -108,19 +111,19 @@ class Game(object):
             if len(block_hit_list) > 0:
                 eaten_dot = min(self.dot_locs, key=lambda c: (c[0]- self.player.rect.topleft[0])**2 + (c[1]-self.player.rect.topleft[1])**2)
                 self.dot_locs = [x for x in self.dot_locs if x != eaten_dot]
-                self.score += 1
+                self.bonus += 0.02
                 self.player.health += 20
 
             block_hit_list = pygame.sprite.spritecollide(self.player, self.ghosts, True)
             if len(block_hit_list) > 0: # caught by ghost
                 self.player.explosion = True
                 self.trial_over = True
-                self.trial_end_reason = "killed"
+                self.trial_end_reason = "caught"
                 return True
 
             elif self.player.health <= 0: # health bar reached 0
                 self.trial_over = True
-                self.trial_end_reason = "starved"
+                self.trial_end_reason = "no_health"
                 return True
 
             elif len(self.dot_locs) == 0: # consumed all dots
@@ -141,8 +144,8 @@ class Game(object):
         self.dots_group.draw(screen)
         self.ghosts.draw(screen)
         screen.blit(self.player.image, self.player.rect)
-        # Render the text for the score
-        text = self.font.render("Score: " + str(self.score), True, GREEN)
+        # Render the text for the bonus
+        text = self.font.render("bonus: $" + str(round(self.bonus,2)), True, GREEN)
         # Put the text on the screen
         screen.blit(text, [120, 0])
 
@@ -165,12 +168,12 @@ class Game(object):
 
         for g in self.ghosts.sprites():
             ghost_locations.append(g.rect.topleft)
-            ghost_dist_from_player = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))/36
+            ghost_dist_from_player = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))
             ghost_dist_from_player = int(round(ghost_dist_from_player, 0))
             ghost_distances_from_player.append(ghost_dist_from_player)
 
         for dot_loc in self.dot_locs:
-            dot_dist_from_player = distance.cityblock(list(self.player.rect.topleft),list(dot_loc))/36
+            dot_dist_from_player = distance.cityblock(list(self.player.rect.topleft),list(dot_loc))
             dot_dist_from_player = int(round(dot_dist_from_player, 0))
             dot_distances_from_player.append(dot_dist_from_player)
 
@@ -178,7 +181,7 @@ class Game(object):
         if len(ghost_distances_from_player) == 2:
             min_ghost_dist_from_player = min(ghost_distances_from_player)
         else:
-            min_ghost_dist_from_player = 0 
+            min_ghost_dist_from_player = 0
             
         
         info["ghosts_locs"] = ghost_locations
@@ -191,8 +194,9 @@ class Game(object):
         info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
         info["ghosts_speed"] = self.ghosts.sprites()[0].speed
         info["player_direction_facing"] = self.player.direction_facing
-        info["score"] = self.score
+        info["bonus"] = round(self.bonus,2)
         info["health"] = round(self.player.health, 2)
+        info["trial_end_reason"] = self.trial_end_reason
 
         return info
 

@@ -1,6 +1,5 @@
 from __future__ import division
 import os
-import game
 import pygame
 import pandas as pd
 from config import *
@@ -59,7 +58,7 @@ class Instructions(object):
                 return False
 
         elif self.period == "ITI":
-            if self.trial_end_reason in ["killed", "starved"]:
+            if self.trial_end_reason in ["caught", "no_health"]:
                 self.text = "You lost. Please wait several seconds for the next trial to begin"
             else:
                 self.text = "You won. Please wait several seconds for the next trial to begin"
@@ -124,22 +123,37 @@ def participant_info():
     if not subID.isalnum():
         raise ValueError("The subID contains non-alphanumeric character(s). Please restart.")
 
+    
     try:
         if not int(runID):
             raise ValueError("The runID is not an integer value. Please restart.")
     except:
         raise ValueError("The runID is not an integer value. Please restart.")
+        
+    
+    if os.path.isdir("{}/data/sub-{}".format(os.getcwd(), subID)):
+        files = sorted([x for x in os.listdir("{}/data/sub-{}".format(os.getcwd(), subID)) if "run-0" not in x])
+        if not len(files):
+            if int(runID) not in [0,1]:
+                raise ValueError("You have specified an incorrect run ID. The correct run ID is 1")
+        else:
+            recent_runID = int(files[-1].split("run-")[1].split("_trial")[0])
+            if int(runID) - recent_runID != 1:
+                raise ValueError("You have specified an incorrect run ID. The correct run ID is {}".format(recent_runID + 1))
+    else:
+        if int(runID) != 1:
+            raise ValueError("You have specified an incorrect run ID. The correct run ID is 1")
 
     return subID, runID
 
 
-def save_data(data_dir, subID, runID, trial, game, trial_info_list):
+def save_data(data_dir, subID, runID, trial, trial_info_list):
     """Saves data to TSV file. A file is generated for each trial of each run
     of each subject."""
     
     if not os.path.isfile("{}/sub-{}/run-{}_trial-{}.tsv".format(data_dir, subID, runID, trial)):
         df = pd.DataFrame(trial_info_list)
         df.to_csv("{}/sub-{}/run-{}_trial-{}.tsv".format(data_dir, subID, runID, trial),
-                  sep="\t", index=False, columns=list(game.log_information().keys()))
+                  sep="\t", index=False, columns=list(list(trial_info_list[0].keys())))
 
 
