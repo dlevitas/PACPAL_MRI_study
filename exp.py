@@ -6,7 +6,7 @@ from config import *
 
 
 def quit_check():
-    """Quit game is escape key is pressed."""
+    """Quit game when escape key is pressed."""
     
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -17,7 +17,7 @@ def quit_check():
 class Instructions(object):
     """Display instructions during different parts of game."""
     
-    def __init__(self, period, buffer_time, pre_run_elapsed_time, run_elapsed_time, trial_end_reason, run_length, end_buffer_time):
+    def __init__(self, period, buffer_time, pre_run_elapsed_time, run_elapsed_time, trial_end_reason, run_length, end_buffer_time, runID):
         self.text = "Please wait for the scan to begin"
         self.font_color = WHITE
         self.select_color = (255, 255, 255)
@@ -29,6 +29,9 @@ class Instructions(object):
         self.trial_end_reason = trial_end_reason
         self.run_length = run_length
         self.end_buffer_time = end_buffer_time
+        self.runID = runID
+        if int(self.runID) == 0:
+            self.buffer_time = 2 # in sec
 
     def process_events(self):
         if self.period != "pre":
@@ -44,16 +47,24 @@ class Instructions(object):
         self.countdown = (self.buffer_time*1000 - self.cum_run_time)/10
 
         if self.period == "pre":
-            self.text = "Please wait for the experiment to begin"
+            if int(self.runID) == 0:
+                self.text = "Please wait for the practice to begin"
+                begin_key = pygame.K_RETURN
+            else:
+                self.text = "Please wait for the experiment to begin"
+                begin_key = pygame.K_BACKQUOTE
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
-                    elif event.key == pygame.K_BACKQUOTE:
+                    elif event.key == begin_key:
                         return False
 
         elif self.period == "start":
-            self.text = "Please wait. The run will begin shortly"
+            if int(self.runID) == 0:
+                self.text = "Please wait. The practice will begin shortly"
+            else:
+                self.text = "Please wait. Run #{} will begin shortly".format(self.runID)
             if self.cum_run_time >= self.buffer_time*1000:
                 return False
 
@@ -63,7 +74,7 @@ class Instructions(object):
             else:
                 self.text = "You won. Please wait several seconds for the next trial to begin"
 
-            # quit out if ITI buffer period runs into end run buffer period
+            # exit game if ITI buffer period dips into end run buffer period
             if pygame.time.get_ticks() >= self.run_elapsed_time + self.end_buffer_time*1000:
                 return False
             if pygame.time.get_ticks() >= self.run_elapsed_time + self.buffer_time*1000:
@@ -92,16 +103,17 @@ class Instructions(object):
             pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH/2.5, SCREEN_HEIGHT/1.8, self.countdown/2, 15))
             screen.blit(label, (posX, posY))
         else:
-            label2 = self.font.render("* To move DOWN, hold down the thumb button", True, self.select_color)
-            label3 = self.font.render("* To move LEFT, hold down the index finger button", True, self.select_color)
-            label4 = self.font.render("* To move UP, hold down the middle finger button", True, self.select_color)
-            label5 = self.font.render("* To move RIGHT, hold down the ring finger button", True, self.select_color)
-            screen.blit(label, (posX, posY-80))
-            screen.blit(label2, (posX, posY+20))
-            screen.blit(label3, (posX, posY+40))
-            screen.blit(label4, (posX, posY+60))
-            screen.blit(label5, (posX, posY+80))
+            posX_new = (SCREEN_WIDTH/2.5) - (width/2)
+            label2 = self.font.render("* To move UP, hold down the left hand middle finger button", True, self.select_color)
+            label3 = self.font.render("* To move DOWN, hold down the left hand index finger button", True, self.select_color)
+            label4 = self.font.render("* To move LEFT, hold down the right hand index finger button", True, self.select_color)
+            label5 = self.font.render("* To move RIGHT, hold down the right hand middle finger button", True, self.select_color)
 
+            screen.blits(blit_sequence=((label, (posX, posY-80)), 
+                                        (label2, (posX_new, posY+20)),
+                                        (label3, (posX_new, posY+40)), 
+                                        (label4, (posX_new, posY+60)),
+                                        (label5, (posX_new, posY+80))))
         pygame.display.flip()
 
 
@@ -120,15 +132,10 @@ def participant_info():
     subID = s
     runID = r
 
-    if not subID.isalnum():
-        raise ValueError("The subID contains non-alphanumeric character(s). Please restart.")
-
-    
-    try:
-        if not int(runID):
-            raise ValueError("The runID is not an integer value. Please restart.")
-    except:
-        raise ValueError("The runID is not an integer value. Please restart.")
+    if not subID.isnumeric():
+        raise ValueError("The subID is not a number. Please restart.")
+    if not runID.isnumeric():
+        raise ValueError("The runID is not a number. Please restart.")
         
     
     if os.path.isdir("{}/data/sub-{}".format(os.getcwd(), subID)):

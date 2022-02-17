@@ -20,7 +20,7 @@ end_run_buffer_time = 8 # sec (default is 8)
 
 safe_chase_level = 20 # an integer ranging from 1-100 (default is 0)
 threat_chase_level = 80  # an integer ranging from 1-100 (default is 100)
-sal_period_len = 15 # sec (default is 15)
+sal_period_len = 5 # sec (default is 15)
 player_speed = 3 # (default is 3; can be either 2 or 3)
 
 # Begin
@@ -86,8 +86,7 @@ def main():
     grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
     game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period)
-
-    instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time)
+    instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time, runID)
 
     # display waiting screen until scanner sends trigger signaling the beginning of the scan
     while pre_exp:
@@ -104,7 +103,7 @@ def main():
         cum_run_time = pygame.time.get_ticks() - pre_run_elapsed_time
 
         while start_buffer:
-            instructions.__init__("start", start_run_buffer_time, pre_run_elapsed_time, 0, game.trial_end_reason, run_length, end_run_buffer_time)
+            instructions.__init__("start", start_run_buffer_time, pre_run_elapsed_time, 0, game.trial_end_reason, run_length, end_run_buffer_time, runID)
             start_buffer = instructions.process_events()
             instructions.display_frame(screen)
 
@@ -134,11 +133,12 @@ def main():
 
             # update salience period
             if sal_period_timer/sal_period_timer_index >= sal_period_len*1000:
+                print(sal_period_timer)
                 sal_period, ghost_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
                 sal_period_timer_index += 1
 
         else: # trial ends, enter inter trial interval (ITI) buffer period
-            if len(trial_info_list): # add log information at trial offset, even if not at log interval
+            if len(trial_info_list): # add log information from trial offset, even if not at log interval
                 info = game.log_information()
                 info["cum_run_time"] = cum_run_time/1000
                 trial_info_list.append(info)
@@ -150,16 +150,11 @@ def main():
             rand_num = random.randrange(100)
             ITI_buffer = True
             run_elapsed_time = pygame.time.get_ticks()
-            instructions.__init__("ITI", ITI_buffer_time, pre_run_elapsed_time, run_elapsed_time, game.trial_end_reason, run_length, end_run_buffer_time)
+            instructions.__init__("ITI", ITI_buffer_time, pre_run_elapsed_time, run_elapsed_time, game.trial_end_reason, run_length, end_run_buffer_time, runID)
 
             while ITI_buffer:
                 ITI_buffer = instructions.process_events()
                 instructions.display_frame(screen)
-
-#            # change salience period if player lasted more than 3 sec (3000 ms)
-#            if sal_period_timer/sal_period_timer_index > 3000 + ITI_buffer_time*1000:
-#                sal_period, ghost_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
-#                sal_period_timer_index += 1
 
         # stop game several seconds before the end of the run
         if cum_run_time >= run_length*60*1000 - end_run_buffer_time*1000:
@@ -170,7 +165,7 @@ def main():
                 trial_info_list.append(info)
                 
             run_elapsed_time = pygame.time.get_ticks()
-            instructions.__init__("end", end_run_buffer_time, pre_run_elapsed_time, run_elapsed_time, game.trial_end_reason, run_length, end_run_buffer_time)
+            instructions.__init__("end", end_run_buffer_time, pre_run_elapsed_time, run_elapsed_time, game.trial_end_reason, run_length, end_run_buffer_time, runID)
 
             while end_buffer:
                 end_buffer = instructions.process_events()
