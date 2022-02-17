@@ -130,7 +130,7 @@ class Game(object):
                 self.trial_over = True
                 self.trial_end_reason = "won"
                 return True
-
+            
             self.trial_over = self.player.trial_over
             self.ghosts.update(self.horizontal_blocks, self.vertical_blocks, self.intersection_blocks, self.player.rect.topleft, self.all_points_info, self.sal_period, self.ghost_chase_level)
 
@@ -165,6 +165,12 @@ class Game(object):
         info["player_start_pos"] = self.player.start_pos
         info["player_loc"] = self.player.rect.topleft
         info["player_speed"] = self.player_speed
+        
+        # if you "lose" trial, incur penalty
+        if self.trial_end_reason in ["caught", "no_health"]:
+            self.bonus -= 0.03
+        if self.bonus < 0: # if negative bonus value, set to 0
+            self.bonus = 0.00
 
         for g in self.ghosts.sprites():
             ghost_locations.append(g.rect.topleft)

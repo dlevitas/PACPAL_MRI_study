@@ -129,7 +129,7 @@ def enviroment_setup(rand_num):
                     intersection_4way.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
 
     dots_pos = [x[0] for x in intersection_2way+intersection_3way+intersection_4way if x[0] != player_start_pos]
-    dots_pos = random.sample(dots_pos, 15)
+    dots_pos = random.sample(dots_pos, 15) # range of 10-15
 
     return grid, player_start_pos, slimes_start_pos, dots_pos, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way
 

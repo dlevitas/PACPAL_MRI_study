@@ -15,12 +15,12 @@ log_interval = 1 # sec (default is 1; don't change. Ideally should reflect the s
 
 run_length = 12 # min (default is 12)
 start_run_buffer_time = 8 # sec (default is 8)
-ITI_buffer_time = 6 # sec (default is 6)
+ITI_buffer_time = 8 # sec (default is 8)
 end_run_buffer_time = 8 # sec (default is 8)
 
 safe_chase_level = 20 # an integer ranging from 1-100 (default is 0)
 threat_chase_level = 80  # an integer ranging from 1-100 (default is 100)
-sal_period_len = 5 # sec (default is 15)
+sal_period_len = 15 # sec (default is 15)
 player_speed = 3 # (default is 3; can be either 2 or 3)
 
 # Begin
