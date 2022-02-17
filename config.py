@@ -5,8 +5,12 @@ left_key = pygame.K_j
 up_key = pygame.K_e
 down_key = pygame.K_f
 
+loss_penalty = 0.03
+
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 648
+#SCREEN_WIDTH = 1200
+#SCREEN_HEIGHT = 846
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 RED = (255, 0, 0)

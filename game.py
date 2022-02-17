@@ -6,7 +6,7 @@ from ghosts import Block, Ellipse, ghost
 from layout import enviroment_setup, draw_enviroment
 
 class Game(object):
-    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period):
+    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty):
 
         self.font = pygame.font.Font(None, 40)
         self.run_over = True
@@ -34,9 +34,10 @@ class Game(object):
         # specify which grid is being used for this trial
         self.grid_id = grid_id
 
-        # Set the enviroment:
+        # set the enviroment
         self.grid = grid
         
+        # set player health level
         self.health = 100
 
         self.all_points_info = all_points_info
@@ -100,7 +101,7 @@ class Game(object):
         if self.trial_over:
             grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period)
+            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty)
             self.run_over = False
             self.trial_over = False
 
@@ -168,10 +169,10 @@ class Game(object):
         
         # if you "lose" trial, incur penalty
         if self.trial_end_reason in ["caught", "no_health"]:
-            self.bonus -= 0.03
+            self.bonus -= loss_penalty
         if self.bonus < 0: # if negative bonus value, set to 0
             self.bonus = 0.00
-
+            
         for g in self.ghosts.sprites():
             ghost_locations.append(g.rect.topleft)
             ghost_dist_from_player = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))
@@ -184,21 +185,38 @@ class Game(object):
             dot_distances_from_player.append(dot_dist_from_player)
 
         
-        if len(ghost_distances_from_player) == 2:
-            min_ghost_dist_from_player = min(ghost_distances_from_player)
+        if self.trial_end_reason == "caught":
+            self.closest_ghost_dist = 0
         else:
-            min_ghost_dist_from_player = 0
+            if len(ghost_distances_from_player) == 2:
+                self.closest_ghost_dist = min(ghost_distances_from_player)
+            else:
+                self.closest_ghost_dist = 0
+                
             
-        
+        if self.trial_end_reason == "won":
+            self.closest_dot_dist = 0
+        else:
+            if len(dot_distances_from_player):
+                self.closest_dot_dist = min(dot_distances_from_player)
+            else:
+                self.closest_dot_dist = 0
+
+
         info["ghosts_locs"] = ghost_locations
         info["dots_locs"] = self.dot_locs
         info["ghosts_dists_from_player"] = ghost_distances_from_player
         info["dots_dists_from_player"] = dot_distances_from_player
         info["cum_ghosts_dist"] = sum(info["ghosts_dists_from_player"])
-        info["min_ghost_dist_from_player"] = min_ghost_dist_from_player
+        info["closest_ghost_dist"] = self.closest_ghost_dist
+        info["closest_dot_dist"] = self.closest_dot_dist
         info["salience_period"] = self.sal_period
-        info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
-        info["ghosts_speed"] = self.ghosts.sprites()[0].speed
+        try:
+            info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
+            info["ghosts_speed"] = self.ghosts.sprites()[0].speed
+        except:
+            info["ghosts_chase_level"] = 20
+            info["ghosts_speed"] = 3
         info["player_direction_facing"] = self.player.direction_facing
         info["bonus"] = round(self.bonus,2)
         info["health"] = round(self.player.health, 2)

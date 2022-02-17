@@ -3,6 +3,7 @@ import os
 import pygame
 import pandas as pd
 from config import *
+from random import normalvariate
 
 
 def quit_check():
@@ -75,13 +76,14 @@ class Instructions(object):
                 self.text = "You won. Please wait several seconds for the next trial to begin"
 
             # exit game if ITI buffer period dips into end run buffer period
-            if pygame.time.get_ticks() >= self.run_elapsed_time + self.end_buffer_time*1000:
+            if pygame.time.get_ticks() >= self.run_length*60*1000 + self.pre_run_elapsed_time - self.end_buffer_time*1000:
                 return False
+            # end ITI once the buffer time has passed
             if pygame.time.get_ticks() >= self.run_elapsed_time + self.buffer_time*1000:
                 return False
 
         elif self.period == "end":
-            self.text = "This run will end in several seconds"
+            self.text = "Run #{} run will end in several seconds".format(runID)
             if self.cum_run_time >= self.end_buffer_time*1000:
                 return False
 
@@ -162,5 +164,22 @@ def save_data(data_dir, subID, runID, trial, trial_info_list):
         df = pd.DataFrame(trial_info_list)
         df.to_csv("{}/sub-{}/run-{}_trial-{}.tsv".format(data_dir, subID, runID, trial),
                   sep="\t", index=False, columns=list(list(trial_info_list[0].keys())))
+        
+
+def gauss_choice(lst, mean=None, stddev=None):
+    """Select items from list in a normal (gaussian) fashion. Code comes from:
+    https://stackoverflow.com/a/35472572"""
+    if mean is None:
+        # if mean is not specified, use center of list
+        mean = (len(lst) - 1) / 2
+
+    if stddev is None:
+        # if stddev is not specified, let list be -3 .. +3 standard deviations
+        stddev = len(lst) / 6
+
+    while True:
+        index = int(normalvariate(mean, stddev) + 0.5)
+        if 0 <= index < len(lst):
+            return lst[index]
 
 
