@@ -7,7 +7,7 @@ import pandas as pd
 from config import *
 from game import Game
 from layout import enviroment_setup
-from exp import Instructions, participant_info, save_data, gauss_choice
+from exp import Instructions, participant_info, save_data, gauss_choice, get_screen_resolution
 
 # experiment variables. Can be modified but should remain constant once data collection for study begins:
 data_dir = os.path.join(os.getcwd(), "data") # don't change
@@ -41,13 +41,17 @@ def main():
 
     # initialize all imported pygame modules
     pygame.init()
+    
+    # get screen resolution (in pixels)
+    screen_width, screen_height = get_screen_resolution()
 
     # set the width and height of the screen [width, height]
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+#    screen = pygame.display.set_mode((screen_width/2, screen_height/2))
 
     # set the current window caption
     pygame.display.set_caption("PACMAN")
-
+    
     # clock
     clock = pygame.time.Clock()
     
