@@ -9,6 +9,12 @@ from game import Game
 from layout import enviroment_setup
 from exp import Instructions, participant_info, save_data, gauss_choice, get_screen_resolution
 
+try:
+    from natsort import natsorted
+except:
+    os.system('pip install natsort --user')
+    from natsort import natsorted
+
 # experiment variables. Can be modified but should remain constant once data collection for study begins:
 data_dir = os.path.join(os.getcwd(), "data") # don't change
 log_interval = 1 # sec (default is 1; don't change. Ideally should reflect the scanner TR)
@@ -81,7 +87,7 @@ def main():
     
     # determine cumulative experiment bonus amount and trial number
     try:
-        recent_log_file = sorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
+        recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
         trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0])
         bonus = pd.read_csv(recent_log_file, sep="\t")["bonus"].iloc[-1]
     except:
