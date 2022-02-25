@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
     explosion = False
     trial_over = False
 
-    def __init__(self, x, y, filename, player_speed):
+    def __init__(self, x, y, filename, player_speed, health_decay):
         # call the parent class (sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(filename).convert()
@@ -18,6 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.topleft = (x, y)
         self.trial_over = False
         self.health = 100
+        self.health_decay = health_decay
         self.speed = player_speed
         self.upVal = 0
         self.downVal = 0
@@ -63,8 +64,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.change_x
             self.rect.y += self.change_y
 
-#            self.health -= 0.05
-            self.health -= 0.1
+            self.health -= self.health_decay
 
             # this will stop the player from moving through the blue lines
             for block in pygame.sprite.spritecollide(self, horizontal_blocks, False):

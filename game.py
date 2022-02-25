@@ -6,7 +6,7 @@ from ghosts import Block, Ellipse, ghost
 from layout import enviroment_setup, draw_enviroment
 
 class Game(object):
-    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty):
+    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay):
 
         self.font = pygame.font.Font(None, 40)
         self.run_over = True
@@ -17,9 +17,13 @@ class Game(object):
         self.trial_end_reason = "N/A" # caught, no_health, or won
         self.player_speed = player_speed # how fast player can move
         self.sal_period = sal_period
+        # set player health level
+        self.health = 100
+        # set player health decay
+        self.health_decay = health_decay
 
         # Create the player
-        self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_speed)
+        self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_speed, self.health_decay)
         self.player.start_pos = player_start_pos
         # Create the blocks that will set the paths where the player can go
         self.horizontal_blocks = pygame.sprite.Group()
@@ -36,9 +40,6 @@ class Game(object):
 
         # set the enviroment
         self.grid = grid
-        
-        # set player health level
-        self.health = 100
 
         self.all_points_info = all_points_info
 
@@ -101,7 +102,7 @@ class Game(object):
         if self.trial_over:
             grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty)
+            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty, health_decay)
             self.run_over = False
             self.trial_over = False
 
