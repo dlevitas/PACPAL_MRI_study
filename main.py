@@ -7,14 +7,22 @@ import pandas as pd
 from config import *
 from game import Game
 from layout import enviroment_setup
-from exp import Instructions, participant_info, save_data, gauss_choice, get_screen_resolution
+from exp import Instructions, participant_info, save_data, gauss_choice
 
-try:
-    from natsort import natsorted
-except:
-    os.system('pip install natsort --user')
-    from natsort import natsorted
+# experiment variables. Can be modified but should remain constant once data collection for study begins:
+data_dir = os.path.join(os.getcwd(), "data") # don't change
+log_interval = 1 # sec (default is 1; don't change. Ideally should reflect the scanner TR)
 
+run_length = 12 # min (default is 12)
+start_run_buffer_time = 2 # sec (default is 8)
+#ITI_buffer_time = 8 # sec (default is 8)
+ITI_buffer_times = [6,7,8,9,10] # sec (will randomly select ITI buffer time in gaussian distribution fashion (i.e. 8 most common)
+end_run_buffer_time = 8 # sec (default is 8)
+
+safe_chase_level = 10 # an integer ranging from 1-100 (default is 0)
+threat_chase_level = 10  # an integer ranging from 1-100 (default is 100)
+sal_period_len = 15 # sec (default is 15)
+player_speed = 3 # (default is 3; can be either 2 or 3)
 
 # Begin
 def main():
@@ -33,17 +41,14 @@ def main():
 
     # initialize all imported pygame modules
     pygame.init()
-    
-    # get screen resolution (in pixels)
-    screen_width, screen_height = get_screen_resolution()
 
     # set the width and height of the screen [width, height]
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-#    screen = pygame.display.set_mode((screen_width/2, screen_height/2))
 
     # set the current window caption
     pygame.display.set_caption("PACMAN")
     
+
     # clock
     clock = pygame.time.Clock()
     
@@ -73,7 +78,7 @@ def main():
     
     # determine cumulative experiment bonus amount and trial number
     try:
-        recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
+        recent_log_file = sorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
         trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0])
         bonus = pd.read_csv(recent_log_file, sep="\t")["bonus"].iloc[-1]
     except:
@@ -84,7 +89,7 @@ def main():
     # create game and instructions objects
     grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay)
+    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty)
     instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time, runID)
 
     # display waiting screen until scanner sends trigger signaling the beginning of the scan
