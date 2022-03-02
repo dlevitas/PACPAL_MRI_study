@@ -1,30 +1,29 @@
-import os
 import pygame
 
-data_dir = os.path.join(os.getcwd(), "data") # location of log files
-log_interval = 1 # sec. Ideally should reflect the scanner TR
+#right_key = pygame.K_i
+#left_key = pygame.K_j
+#up_key = pygame.K_e
+#down_key = pygame.K_f
 
-run_length = 12 # min (default is 12)
-start_run_buffer_time = 8 # sec (default is 8)
-ITI_buffer_times = [6,7,8,9,10] # sec (will randomly select ITI buffer time in gaussian distribution fashion (i.e. 8 most common)
-end_run_buffer_time = 8 # sec (default is 8)
+#right_key = pygame.K_4
+#left_key = pygame.K_2
+#up_key = pygame.K_3
+#down_key = pygame.K_1
+#stop_movement_key = pygame.K_5
 
-safe_chase_level = 10 # an integer ranging from 1-100 (default is 0)
-threat_chase_level = 90  # an integer ranging from 1-100 (default is 100)
-sal_period_len = 15 # sec (default is 15)
-player_speed = 3 # (default is 3; can be either 2 or 3)
+right_key = pygame.K_r
+left_key = pygame.K_l
+up_key = pygame.K_u
+down_key = pygame.K_d
+capital_key = pygame.K_LSHIFT
 
-health_decay = 0.2 # decay of health
+loss_penalty = 0.03
 
-right_key = pygame.K_i
-left_key = pygame.K_j
-up_key = pygame.K_e
-down_key = pygame.K_f
+#SCREEN_WIDTH = 900
+#SCREEN_HEIGHT = 648
+SCREEN_WIDTH = 1440
+SCREEN_HEIGHT = 846
 
-loss_penalty = 0.03 # how much money ($) is lost after losing each trial
-
-SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 648
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
