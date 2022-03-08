@@ -9,21 +9,6 @@ from game import Game
 from layout import enviroment_setup
 from exp import Instructions, participant_info, save_data, gauss_choice
 
-# experiment variables. Can be modified but should remain constant once data collection for study begins:
-data_dir = os.path.join(os.getcwd(), "data") # don't change
-log_interval = 1 # sec (default is 1; don't change. Ideally should reflect the scanner TR)
-
-run_length = 12 # min (default is 12)
-start_run_buffer_time = 2 # sec (default is 8)
-#ITI_buffer_time = 8 # sec (default is 8)
-ITI_buffer_times = [6,7,8,9,10] # sec (will randomly select ITI buffer time in gaussian distribution fashion (i.e. 8 most common)
-end_run_buffer_time = 8 # sec (default is 8)
-
-safe_chase_level = 10 # an integer ranging from 1-100 (default is 0)
-threat_chase_level = 10  # an integer ranging from 1-100 (default is 100)
-sal_period_len = 15 # sec (default is 15)
-player_speed = 3 # (default is 3; can be either 2 or 3)
-
 # Begin
 def main():
     """Runs the PACMAN game. All classes and functions are referenced here."""
@@ -48,7 +33,6 @@ def main():
     # set the current window caption
     pygame.display.set_caption("PACMAN")
     
-
     # clock
     clock = pygame.time.Clock()
     
@@ -89,7 +73,7 @@ def main():
     # create game and instructions objects
     grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty)
+    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay)
     instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time, runID)
 
     # display waiting screen until scanner sends trigger signaling the beginning of the scan
@@ -112,7 +96,12 @@ def main():
             instructions.display_frame(screen)
 
         # process events (keystrokes, mouse clicks, etc) and check if run ends
-        run_over = game.process_events()
+        if response_device == "keyboard":
+            run_over = game.keyboard_process_events()
+        elif response_device == "mri":
+            run_over = game.mri_process_events()
+        else:
+            raise ValueError("Unknown response device specified. Please use 'keyboard' or 'mri'")
         # game logic is here, including checking for when the trial ends
         trial_over = game.run_logic(rand_num, sal_period, ghost_chase_level)
         # draw the current frame

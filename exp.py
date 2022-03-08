@@ -53,10 +53,10 @@ class Instructions(object):
         if self.period == "pre":
             if int(self.runID) == 0:
                 self.text = "Please wait for the practice to begin"
-                begin_key = pygame.K_RETURN
+                begin_key = practice_begin_key
             else:
                 self.text = "Please wait for the experiment to begin"
-                begin_key = pygame.K_BACKQUOTE
+                begin_key = exp_begin_key
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
@@ -153,8 +153,8 @@ def participant_info():
             if int(runID) - recent_runID != 1:
                 raise ValueError("You have specified an incorrect run ID. The correct run ID is {}".format(recent_runID + 1))
     else:
-        if int(runID) != 1:
-            raise ValueError("You have specified an incorrect run ID. The correct run ID is 1")
+        if int(runID) not in [0,1]:
+            raise ValueError("You have specified an incorrect run ID. Please select 0 for practice run, or 1 for 1st experiment run")
 
     return subID, runID
 
@@ -184,7 +184,6 @@ def gauss_choice(lst, mean=None, stddev=None):
         index = int(normalvariate(mean, stddev) + 0.5)
         if 0 <= index < len(lst):
             return lst[index]
-
 
 
 def get_screen_resolution():

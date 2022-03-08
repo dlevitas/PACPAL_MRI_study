@@ -6,7 +6,7 @@ from ghosts import Block, Ellipse, ghost
 from layout import enviroment_setup, draw_enviroment
 
 class Game(object):
-    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty):
+    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay):
 
         self.font = pygame.font.Font(None, 40)
         self.run_over = True
@@ -17,9 +17,10 @@ class Game(object):
         self.trial_end_reason = "N/A" # caught, no_health, or won
         self.player_speed = player_speed # how fast player can move
         self.sal_period = sal_period
+        self.health_decay = health_decay
 
         # Create the player
-        self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_speed)
+        self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_speed, self.health_decay)
         self.player.start_pos = player_start_pos
         # Create the blocks that will set the paths where the player can go
         self.horizontal_blocks = pygame.sprite.Group()
@@ -59,77 +60,42 @@ class Game(object):
             self.dots_group.add(Ellipse(d[0]+10, d[1]+10, WHITE, 15, 15))
 
 
-#    def process_events(self):
-#        for event in pygame.event.get(): # User did something
-#            if event.type == pygame.KEYDOWN:
-#                if event.key == pygame.K_ESCAPE: # exit program entirely
-#                    self.run_over = True
-#                    return True
-#                elif event.key == right_key:
-#                    self.player.move_right()
-#                    self.player.direction_facing = "right"
-#
-#                elif event.key == left_key:
-#                    self.player.move_left()
-#                    self.player.direction_facing = "left"
-#
-#                elif event.key == up_key:
-#                    self.player.move_up()
-#                    self.player.direction_facing = "up"
-#
-#                elif event.key == down_key:
-#                    self.player.move_down()
-#                    self.player.direction_facing = "down"
-#
-#            elif event.type == pygame.KEYUP:
-##                self.player.direction_facing = "still"
-#                if event.key == right_key:
-#                    self.player.stop_move_right()
-#                elif event.key == left_key:
-#                    self.player.stop_move_left()
-#                elif event.key == up_key:
-#                    self.player.stop_move_up()
-#                elif event.key == down_key:
-#                    self.player.stop_move_down()
-#
-#        return False
+    def keyboard_process_events(self):
+        for event in pygame.event.get(): # User did something
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE: # exit program entirely
+                    self.run_over = True
+                    return True
+                elif event.key == keyboard_right_key:
+                    self.player.move_right()
+                    self.player.direction_facing = "right"
+
+                elif event.key == keyboard_left_key:
+                    self.player.move_left()
+                    self.player.direction_facing = "left"
+
+                elif event.key == keyboard_up_key:
+                    self.player.move_up()
+                    self.player.direction_facing = "up"
+
+                elif event.key == keyboard_down_key:
+                    self.player.move_down()
+                    self.player.direction_facing = "down"
+
+            elif event.type == pygame.KEYUP:
+#                self.player.direction_facing = "still"
+                if event.key == keyboard_right_key:
+                    self.player.stop_move_right()
+                elif event.key == keyboard_left_key:
+                    self.player.stop_move_left()
+                elif event.key == keyboard_up_key:
+                    self.player.stop_move_up()
+                elif event.key == keyboard_down_key:
+                    self.player.stop_move_down()
+        return False
             
             
-#    def process_events(self):
-#        for event in pygame.event.get(): # User did something
-#            if event.type == pygame.KEYDOWN:
-#                name = pygame.key.name(event.key)
-#                print(name)
-#                mods = pygame.key.get_mods()
-#                if event.key == pygame.K_ESCAPE: # exit program entirely
-#                    self.run_over = True
-#                    return True
-#                elif event.key == right_key:
-#                    self.player.move_right()
-#                    self.player.direction_facing = "right"
-#
-#                elif event.key == left_key:
-#                    self.player.move_left()
-#                    self.player.direction_facing = "left"
-#
-#                elif event.key == up_key:
-#                    self.player.move_up()
-#                    self.player.direction_facing = "up"
-#
-#                elif event.key == down_key:
-#                    while (mods & pygame.KMOD_LSHIFT or mods & pygame.KMOD_CAPS):
-#                        self.player.move_down()
-#                    else:
-#                        self.player.stop_move_down()
-##            else:
-##                self.player.stop_move_right()
-##                self.player.stop_move_left()
-##                self.player.stop_move_up()
-##                self.player.stop_move_down()                
-#
-#        return False       
-            
-    def process_events(self):
+    def mri_process_events(self):
         counter = []
         for event in pygame.event.get(): # User did something
             if event.type == pygame.KEYDOWN:
@@ -137,7 +103,7 @@ class Game(object):
                     self.run_over = True
                     return True
                 else: # direction movement
-                    if event.key in [capital_key, right_key, left_key, up_key, down_key]:
+                    if event.key in [mri_capital_key, mri_right_key, mri_left_key, mri_up_key, mri_down_key]:
                         counter.append(pygame.key.name(event.key))
                     # right
                     if len(counter) == 2 and counter[0] == "left shift" and counter[1] == "r":
@@ -162,7 +128,6 @@ class Game(object):
         return False              
             
             
-
     def run_logic(self, rand_num, sal_period, ghost_chase_level):
         self.sal_period = sal_period
         self.ghost_chase_level = ghost_chase_level
@@ -170,7 +135,7 @@ class Game(object):
         if self.trial_over:
             grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty)
+            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty, self.health_decay)
             self.run_over = False
             self.trial_over = False
 
@@ -292,4 +257,3 @@ class Game(object):
         info["trial_end_reason"] = self.trial_end_reason
 
         return info
-
