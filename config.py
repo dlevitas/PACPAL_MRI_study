@@ -1,11 +1,6 @@
 import os
 import pygame
 
-#right_key = pygame.K_i
-#left_key = pygame.K_j
-#up_key = pygame.K_e
-#down_key = pygame.K_f
-
 # experiment variables
 data_dir = os.path.join(os.getcwd(), "data")
 log_interval = 0.5 # sec (default is 0.5; ideally should reflect the scanner TR)
