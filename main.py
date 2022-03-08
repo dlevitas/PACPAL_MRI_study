@@ -9,6 +9,12 @@ from game import Game
 from layout import enviroment_setup
 from exp import Instructions, participant_info, save_data, gauss_choice
 
+try:
+    from natsort import natsorted
+except:
+    os.system('pip install natsort --user')
+    from natsort import natsorted
+
 # Begin
 def main():
     """Runs the PACMAN game. All classes and functions are referenced here."""
@@ -62,7 +68,7 @@ def main():
     
     # determine cumulative experiment bonus amount and trial number
     try:
-        recent_log_file = sorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
+        recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
         trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0])
         bonus = pd.read_csv(recent_log_file, sep="\t")["bonus"].iloc[-1]
     except:
