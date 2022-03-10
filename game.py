@@ -242,7 +242,6 @@ class Game(object):
         info["dots_locs"] = self.dot_locs
         info["ghosts_dists_from_player"] = ghost_distances_from_player
         info["dots_dists_from_player"] = dot_distances_from_player
-        info["cum_ghosts_dist"] = sum(info["ghosts_dists_from_player"])
         info["closest_ghost_dist"] = self.closest_ghost_dist
         info["closest_dot_dist"] = self.closest_dot_dist
         info["salience_period"] = self.sal_period
@@ -251,7 +250,7 @@ class Game(object):
             info["ghosts_speed"] = self.ghosts.sprites()[0].speed
         except:
             info["ghosts_chase_level"] = 10
-            info["ghosts_speed"] = 3
+            info["ghosts_speed"] = self.player_speed
         info["player_direction_facing"] = self.player.direction_facing
         info["bonus"] = round(self.bonus,2)
         info["health"] = round(self.player.health, 2)
