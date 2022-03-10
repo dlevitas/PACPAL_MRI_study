@@ -103,7 +103,6 @@ def main():
 
         # let first row of log be the trial onset information
         if not len(trial_info_list) and trial == 1: 
-            print('0', (pygame.time.get_ticks() - pre_run_elapsed_time)/1000, cum_ITI_buffer_time)
             info = game.log_information()
             info["salience_period"] = sal_period
             info["ghosts_chase_level"] = ghost_chase_level
@@ -137,7 +136,6 @@ def main():
 
             # log game information every log interval, but not in-between trials
             if logging_timer/logging_timer_index >= log_interval*1000:
-                print('1', (pygame.time.get_ticks() - pre_run_elapsed_time)/1000, cum_ITI_buffer_time)
                 logging_timer_index += 1
     
                 info = game.log_information()
