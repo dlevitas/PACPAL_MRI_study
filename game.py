@@ -54,7 +54,7 @@ class Game(object):
         self.ghosts = pygame.sprite.Group()
         self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_speed, self.player_speed))
         self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_speed, self.player_speed))
-
+        self.ghosts.start_pos = ghosts_start_pos
         # Add the dots inside the game
         for d in dot_locs:
             self.dots_group.add(Ellipse(d[0]+10, d[1]+10, WHITE, 15, 15))
@@ -198,6 +198,7 @@ class Game(object):
         dot_distances_from_player = []
         info["grid_ID"] = self.grid_id
         info["player_start_pos"] = self.player.start_pos
+        info["ghosts_start_pos"] = self.ghosts.start_pos
         info["player_loc"] = self.player.rect.topleft
         info["player_speed"] = self.player_speed
         
@@ -249,7 +250,7 @@ class Game(object):
             info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
             info["ghosts_speed"] = self.ghosts.sprites()[0].speed
         except:
-            info["ghosts_chase_level"] = 20
+            info["ghosts_chase_level"] = 10
             info["ghosts_speed"] = 3
         info["player_direction_facing"] = self.player.direction_facing
         info["bonus"] = round(self.bonus,2)
