@@ -47,6 +47,7 @@ class ghost(pygame.sprite.Sprite):
         self.direction = "NA"
         self.chase_level = 10
         self.speed_options = [player_speed-1, player_speed, player_speed+1]
+#        self.speed_options = [player_speed, player_speed+1]
         self.speed = player_speed
         self.upVal = 0
         self.downVal = 0

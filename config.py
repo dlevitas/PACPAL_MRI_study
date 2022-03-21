@@ -4,7 +4,7 @@ import pygame
 # experiment variables
 data_dir = os.path.join(os.getcwd(), "data")
 log_interval = 0.5 # sec (default is 0.5; ideally should reflect the scanner TR)
-response_device = "keyboard" # either "keyboard" or "mri"
+response_device = "mri" # either "keyboard" or "mri"
 
 run_length = 10 # min
 start_run_buffer_time = 6 # sec

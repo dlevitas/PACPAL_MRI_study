@@ -137,7 +137,7 @@ def participant_info():
     subID = s
     runID = r
 
-    if not subID.isnumeric():
+    if not subID.isalnum():
         raise ValueError("The subID is not a number. Please restart.")
     if not runID.isnumeric():
         raise ValueError("The runID is not a number. Please restart.")
