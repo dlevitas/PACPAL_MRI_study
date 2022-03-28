@@ -27,14 +27,14 @@ class Player(pygame.sprite.Sprite):
         img = pygame.image.load("walk.png").convert()
 
         # create the animations objects
-        self.move_right_animation = Animation(img, 36, 36)
-        self.move_left_animation = Animation(pygame.transform.flip(img, True, False), 36, 36)
-        self.move_up_animation = Animation(pygame.transform.rotate(img, 90), 36, 36)
-        self.move_down_animation = Animation(pygame.transform.rotate(img, 270), 36, 36)
+        self.move_right_animation = Animation(img, 32, 32)
+        self.move_left_animation = Animation(pygame.transform.flip(img, True, False), 32, 32)
+        self.move_up_animation = Animation(pygame.transform.rotate(img, 90), 32, 32)
+        self.move_down_animation = Animation(pygame.transform.rotate(img, 270), 32, 32)
 
         # load explosion image
         img = pygame.image.load("explosion.png").convert()
-        self.explosion_animation = Animation(img, 36, 36)
+        self.explosion_animation = Animation(img, 32, 32)
 
         # save the player image
         self.player_image = pygame.image.load(filename).convert()

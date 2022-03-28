@@ -36,7 +36,7 @@ class Ellipse(pygame.sprite.Sprite):
 class ghost(pygame.sprite.Sprite):
     "Generating the ghosts and all their aspects."""
     
-    def __init__(self, x, y, change_x, change_y, player_speed):
+    def __init__(self, x, y, change_x, change_y, ghosts_threat_speed_options):
         # call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         self.change_x = change_x
@@ -46,9 +46,8 @@ class ghost(pygame.sprite.Sprite):
         self.rect.topleft = (x, y)
         self.direction = "NA"
         self.chase_level = 10
-        self.speed_options = [player_speed-1, player_speed, player_speed+1]
-#        self.speed_options = [player_speed, player_speed+1]
-        self.speed = player_speed
+        self.ghosts_threat_speed_options = ghosts_threat_speed_options
+        self.speed = min(self.ghosts_threat_speed_options)
         self.upVal = 0
         self.downVal = 0
         self.leftVal = 0
@@ -83,9 +82,9 @@ class ghost(pygame.sprite.Sprite):
             # tracking/chasing info for ghosts
             if pos_type in ["2way", "3way", "4way"]:
                 if self.sal_period == "threat":
-                    self.speed = random.choice(self.speed_options)
+                    self.speed = random.choice(self.ghosts_threat_speed_options)
                 else:
-                    self.speed = random.choice(self.speed_options[:2]) # don't let ghosts be faster than player during safe period
+                    self.speed = min(self.ghosts_threat_speed_options)
                 
                 chase_options = {}
                 for legal_dir in legal_directions:

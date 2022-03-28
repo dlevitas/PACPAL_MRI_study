@@ -6,7 +6,7 @@ from ghosts import Block, Ellipse, ghost
 from layout import enviroment_setup, draw_enviroment
 
 class Game(object):
-    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay):
+    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay, ghosts_threat_speed_options):
 
         self.font = pygame.font.Font(None, 40)
         self.run_over = True
@@ -42,6 +42,8 @@ class Game(object):
         self.health = 100
 
         self.all_points_info = all_points_info
+        
+        self.ghosts_threat_speed_options = ghosts_threat_speed_options
 
         for h in horizontal:
             self.horizontal_blocks.add(Block(h[0][0]+8, h[0][1]+8, RED, 16, 16))
@@ -52,8 +54,8 @@ class Game(object):
 
         # Create the ghosts
         self.ghosts = pygame.sprite.Group()
-        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_speed, self.player_speed))
-        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_speed, self.player_speed))
+        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_speed, self.ghosts_threat_speed_options))
+        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_speed, self.ghosts_threat_speed_options))
         self.ghosts.start_pos = ghosts_start_pos
         # Add the dots inside the game
         for d in dot_locs:
@@ -108,21 +110,25 @@ class Game(object):
                     # right
                     if len(counter) == 2 and counter[0] == "left shift" and counter[1] == "r":
                         self.player.move_right()
+                        self.player.direction_facing = "right"
                     elif len(counter) == 1 and counter[0] == "r":
                         self.player.stop_move_right()
                     # left
                     if len(counter) == 2 and counter[0] == "left shift" and counter[1] == "l":
                         self.player.move_left()
+                        self.player.direction_facing = "left"
                     elif len(counter) == 1 and counter[0] == "l":
                         self.player.stop_move_left()
                     # up
                     if len(counter) == 2 and counter[0] == "left shift" and counter[1] == "u":
                         self.player.move_up()
+                        self.player.direction_facing = "up"
                     elif len(counter) == 1 and counter[0] == "u":
                         self.player.stop_move_up()
                     # down
                     if len(counter) == 2 and counter[0] == "left shift" and counter[1] == "d":
                         self.player.move_down()
+                        self.player.direction_facing = "down"
                     elif len(counter) == 1 and counter[0] == "d":
                         self.player.stop_move_down()
         return False              
@@ -135,7 +141,7 @@ class Game(object):
         if self.trial_over:
             grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty, self.health_decay)
+            self.__init__(self.player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, self.bonus, self.sal_period, loss_penalty, self.health_decay, self.ghosts_threat_speed_options)
             self.run_over = False
             self.trial_over = False
 

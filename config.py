@@ -4,7 +4,7 @@ import pygame
 # experiment variables
 data_dir = os.path.join(os.getcwd(), "data")
 log_interval = 0.5 # sec (default is 0.5; ideally should reflect the scanner TR)
-response_device = "mri" # either "keyboard" or "mri"
+response_device = "keyboard" # either "keyboard" or "mri"
 
 run_length = 10 # min
 start_run_buffer_time = 6 # sec
@@ -17,7 +17,7 @@ sal_period_len = 15 # sec
 player_speed = 3 # (can be either 2 or 3)
 
 health_decay = 0.20 # px/sec. Decay rate of health bar, in pixels per second
-loss_penalty = 0.03 # money amount. How much money is lost when caught by ghosts or when health reaches 0
+loss_penalty = 0.03 # $$. How much money is lost when caught by ghosts or when health reaches 0
 
 
 # pygame variables

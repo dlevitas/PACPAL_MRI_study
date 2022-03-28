@@ -2,11 +2,14 @@ from __future__ import division
 import os
 import shlex
 import pygame
+import random
 import platform
 import pandas as pd
 import subprocess as subp
 from config import *
-from random import normalvariate
+from scipy.stats import expon
+# from random import normalvariate
+
 
 
 def quit_check():
@@ -169,21 +172,32 @@ def save_data(data_dir, subID, runID, trial, trial_info_list):
                   sep="\t", index=False, columns=list(list(trial_info_list[0].keys())))
         
 
-def gauss_choice(lst, mean=None, stddev=None):
-    """Select items from list in a normal (gaussian) fashion. Code comes from:
-    https://stackoverflow.com/a/35472572"""
-    if mean is None:
-        # if mean is not specified, use center of list
-        mean = (len(lst) - 1) / 2
+# def gauss_choice(lst, mean=None, stddev=None):
+#     """Select items from list in a normal (gaussian) fashion. Code comes from:
+#     https://stackoverflow.com/a/35472572"""
+#     if mean is None:
+#         # if mean is not specified, use center of list
+#         mean = (len(lst) - 1) / 2
 
-    if stddev is None:
-        # if stddev is not specified, let list be -3 .. +3 standard deviations
-        stddev = len(lst) / 6
+#     if stddev is None:
+#         # if stddev is not specified, let list be -3 .. +3 standard deviations
+#         stddev = len(lst) / 6
 
-    while True:
-        index = int(normalvariate(mean, stddev) + 0.5)
-        if 0 <= index < len(lst):
-            return lst[index]
+#     while True:
+#         index = int(normalvariate(mean, stddev) + 0.5)
+#         if 0 <= index < len(lst):
+#             return lst[index]
+
+def exponential_ITI(ITI_buffer_times):
+    """Select ITI buffer time from an exponential distribution array."""
+    
+    options = expon.rvs(scale=1,loc=ITI_buffer_times[0],size=1000).round(decimals=0)
+    
+    option = random.choice(options)
+    if option > max(ITI_buffer_times):
+        option = max(ITI_buffer_times)
+    
+    return option
 
 
 def get_screen_resolution():

@@ -7,7 +7,7 @@ import pandas as pd
 from config import *
 from game import Game
 from layout import enviroment_setup
-from exp import Instructions, participant_info, save_data, gauss_choice
+from exp import Instructions, participant_info, save_data, exponential_ITI
 
 try:
     from natsort import natsorted
@@ -16,11 +16,22 @@ except:
     from natsort import natsorted
 
 # Begin
-def main():
+def main(threat_chase_level):
     """Runs the PACMAN game. All classes and functions are referenced here."""
+    
     
     # get participant info
     subID, runID = participant_info()
+    
+    if runID in ["0","1","2"]:
+        ghosts_threat_speed_options = [player_speed-1, player_speed, player_speed+1]
+    elif runID in ["3","4"]:
+        threat_chase_level = threat_chase_level+5
+        ghosts_threat_speed_options = [player_speed-1, player_speed, player_speed, player_speed+1, player_speed+1]
+    elif runID in ["5","6"]:
+        threat_chase_level = threat_chase_level+10
+        ghosts_threat_speed_options = [player_speed-1, player_speed, player_speed, player_speed+1, player_speed+1, player_speed+1]
+    
 
     # set path(s) for saved data
     if not os.path.isdir("{}".format(data_dir)):
@@ -37,7 +48,7 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     # set the current window caption
-    pygame.display.set_caption("PACMAN")
+    pygame.display.set_caption("PACPAL")
     
     # clock
     clock = pygame.time.Clock()
@@ -63,7 +74,7 @@ def main():
     # trial variables information
     trial = 1
     trial_info_list = []
-    ITI_buffer_time = random.choice(ITI_buffer_times)
+    ITI_buffer_time = exponential_ITI(ITI_buffer_times)
     rand_num = random.randrange(100) # used to set seed that randomizes grid and player/ghosts locations
     
     # determine cumulative experiment bonus amount and trial number
@@ -75,11 +86,10 @@ def main():
         trial = 1
         bonus = 0.00
         
-
     # create game and instructions objects
     grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay)
+    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay, ghosts_threat_speed_options)
     instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time, runID)
 
     # display waiting screen until scanner sends trigger signaling the beginning of the scan
@@ -101,14 +111,14 @@ def main():
             start_buffer = instructions.process_events()
             instructions.display_frame(screen)
 
-        # # let first row of log be the trial onset information
-        # if not len(trial_info_list): 
-        #     info = game.log_information()
-        #     info["salience_period"] = sal_period
-        #     info["ghosts_chase_level"] = ghost_chase_level
-        #     info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
-        #     info["ITI_length"] = ITI_buffer_time
-        #     trial_info_list.append(info)
+        # let first row of log be the trial onset information
+        if not len(trial_info_list): 
+            info = game.log_information()
+            info["salience_period"] = sal_period
+            info["ghosts_chase_level"] = ghost_chase_level
+            info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
+            info["ITI_length"] = ITI_buffer_time
+            trial_info_list.append(info)
 
         # process events (keystrokes, mouse clicks, etc) and check if run ends
         if response_device == "keyboard":
@@ -170,7 +180,8 @@ def main():
                 instructions.display_frame(screen)
             
             cum_ITI_buffer_time += ITI_buffer_time
-            ITI_buffer_time = gauss_choice(ITI_buffer_times)
+            # ITI_buffer_time = gauss_choice(ITI_buffer_times)
+            ITI_buffer_time = exponential_ITI(ITI_buffer_times)
 
         # stop game several seconds before the end of the run
         if cum_run_time >= run_length*60*1000 - end_run_buffer_time*1000:
@@ -197,4 +208,4 @@ def main():
     pygame.quit()
 
 if __name__ == '__main__':
-    main()
+    main(threat_chase_level)
