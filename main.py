@@ -77,19 +77,23 @@ def main(threat_chase_level):
     ITI_buffer_time = exponential_ITI(ITI_buffer_times)
     rand_num = random.randrange(100) # used to set seed that randomizes grid and player/ghosts locations
     
-    # determine cumulative experiment bonus amount and trial number
+    # determine cumulative experiment cum_bonus amount and trial number
     try:
         recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
         trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0])
-        bonus = pd.read_csv(recent_log_file, sep="\t")["bonus"].iloc[-1]
+        cum_bonus = pd.read_csv(recent_log_file, sep="\t")["cum_bonus"].iloc[-1]
     except:
         trial = 1
-        bonus = 0.00
+        cum_bonus = 0.00
         
     # create game and instructions objects
-    grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
+    grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, dot_locs, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way, all_points_info, bonus, sal_period, loss_penalty, health_decay, ghosts_threat_speed_options)
+    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, 
+                dots_info, grid_id, horizontal, vertical, intersection_2way, 
+                intersection_3way, intersection_4way, all_points_info, cum_bonus, 
+                sal_period, loss_penalty, health_decay, ghosts_threat_speed_options,
+                health_bump, bonus_increase)
     instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time, runID)
 
     # display waiting screen until scanner sends trigger signaling the beginning of the scan
@@ -125,6 +129,8 @@ def main(threat_chase_level):
             run_over = game.keyboard_process_events()
         elif response_device == "mri":
             run_over = game.mri_process_events()
+        elif response_device == "test":
+            run_over = game.test_process_events()
         else:
             raise ValueError("Unknown response device specified. Please use 'keyboard' or 'mri'")
         # game logic is here, including checking for when the trial ends

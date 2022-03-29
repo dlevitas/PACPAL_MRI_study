@@ -312,7 +312,7 @@ def enviroment_setup(rand_num):
     # randomly select player start position
     player_start_pos = random.choice(grid_data["player_start_pos"])
 
-    # randomly select slimes start positions
+    # randomly select ghosts start positions
     slime1_start_pos = random.choice(grid_data["ghosts_start_pos"])
     slime2_start_pos = random.choice([x for x in grid_data["ghosts_start_pos"] if x != slime1_start_pos])
     slimes_start_pos = [slime1_start_pos, slime2_start_pos]
@@ -366,8 +366,11 @@ def enviroment_setup(rand_num):
 
     dots_pos = [x[0] for x in intersection_2way+intersection_3way+intersection_4way if x[0] != player_start_pos]
     dots_pos = random.sample(dots_pos, 15)
+    random.shuffle(dots_pos)
+    dot_order_indices = [index+1 for index,value in enumerate(dots_pos)]
+    dots_info = list(zip(dots_pos, dot_order_indices))
 
-    return grid, player_start_pos, slimes_start_pos, dots_pos, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way
+    return grid, player_start_pos, slimes_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way
 
 
 def draw_enviroment(screen, grid):

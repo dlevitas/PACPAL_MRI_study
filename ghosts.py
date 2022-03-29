@@ -17,6 +17,34 @@ class Block(pygame.sprite.Sprite):
         self.rect.topleft = (x, y)
 
 
+# class Ellipse(pygame.sprite.Sprite):
+#     """Information pertaining to the Player ellipse shape."""
+    
+#     def __init__(self, x, y, color, width, height, dot_order_index, dots_info):
+#         # call the parent class (Sprite) constructor
+#         pygame.sprite.Sprite.__init__(self)
+#         # Set the background color and set it to be transparent
+#         self.image = pygame.Surface([width, height])
+#         self.image.fill(BLACK)
+#         self.image.set_colorkey(BLACK)
+#         self.dot_order_index = dot_order_index
+#         self.dots_info = dots_info
+        
+#         if self.dot_order_index == min([x[1] for x in self.dots_info]):
+#             self.color = PINK
+#         else:
+#             self.color = WHITE
+            
+#         # draw the ellipse
+#         pygame.draw.ellipse(self.image, self.color, [0, 0, width, height])
+#         self.rect = self.image.get_rect()
+#         self.rect.topleft = (x, y)
+        
+#     def update(self, dots_info):
+#         self.dots_info = dots_info
+        
+#         return self
+
 class Ellipse(pygame.sprite.Sprite):
     """Information pertaining to the Player ellipse shape."""
     

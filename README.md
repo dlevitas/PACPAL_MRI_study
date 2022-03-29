@@ -15,7 +15,7 @@ Documentation for the PACMAN game:
 
 - 5). The config.py file contains pygame variables that are called throughout the game
 
-- 6). Aditional variables can be found in main.py under "experiment variables"
+- 6). Aditional variables can be found in config.py
 
 - 7). All timing information is handled by the pygame.time.get_ticks() function, which uses milliseconds. Thus, the experiment game uses milliseconds for timing, but you can set experiment variables in minutes or minutes, which will be converted.
 
