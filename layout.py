@@ -365,7 +365,7 @@ def enviroment_setup(rand_num):
                     intersection_4way.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
 
     dots_pos = [x[0] for x in intersection_2way+intersection_3way+intersection_4way if x[0] != player_start_pos]
-    dots_pos = random.sample(dots_pos, 10)
+    dots_pos = random.sample(dots_pos, 15)
     random.shuffle(dots_pos)
     dot_order_indices = [index+1 for index,value in enumerate(dots_pos)]
     dots_info = list(zip(dots_pos, dot_order_indices))
