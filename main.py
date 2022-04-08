@@ -23,14 +23,23 @@ def main(threat_chase_level):
     # get participant info
     subID, runID = participant_info()
     
-    if runID in ["0","1","2"]:
-        ghosts_threat_speed_options = [player_speed-1, player_speed, player_speed+1]
+    if runID == "0":
+        threat_chase_level = threat_chase_level-10
+        ghosts_threat_speed_options = [player_max_speed-1, player_max_speed, player_max_speed+1]
+    elif runID in ["1","2"]:
+        ghosts_threat_speed_options = [player_max_speed-1, 
+                                       player_max_speed, player_max_speed, 
+                                       player_max_speed+1, player_max_speed+1]
     elif runID in ["3","4"]:
         threat_chase_level = threat_chase_level+5
-        ghosts_threat_speed_options = [player_speed-1, player_speed, player_speed, player_speed+1, player_speed+1]
+        ghosts_threat_speed_options = [player_max_speed-1, 
+                                       player_max_speed, player_max_speed, 
+                                       player_max_speed+1, player_max_speed+1, player_max_speed+1]
     elif runID in ["5","6"]:
         threat_chase_level = threat_chase_level+10
-        ghosts_threat_speed_options = [player_speed-1, player_speed, player_speed, player_speed+1, player_speed+1, player_speed+1]
+        ghosts_threat_speed_options = [player_max_speed-1, 
+                                       player_max_speed, player_max_speed, 
+                                       player_max_speed+1, player_max_speed+1, player_max_speed+1, player_max_speed+1]
     
 
     # set path(s) for saved data
@@ -89,7 +98,7 @@ def main(threat_chase_level):
     # create game and instructions objects
     grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-    game = Game(player_speed, grid, player_start_pos, ghosts_start_pos, 
+    game = Game(player_max_speed, grid, player_start_pos, ghosts_start_pos, 
                 dots_info, grid_id, horizontal, vertical, intersection_2way, 
                 intersection_3way, intersection_4way, all_points_info, cum_bonus, 
                 sal_period, loss_penalty, health_decay, ghosts_threat_speed_options,
@@ -118,6 +127,7 @@ def main(threat_chase_level):
         # let first row of log be the trial onset information
         if not len(trial_info_list): 
             info = game.log_information()
+            info["player_speed"] = 0 # Player not moving at first
             info["salience_period"] = sal_period
             info["ghosts_chase_level"] = ghost_chase_level
             info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
@@ -139,13 +149,14 @@ def main(threat_chase_level):
         game.display_frame(screen)
         
         if not trial_over:
-            if not len(trial_info_list): # let first row of log be the trial onset information
-                info = game.log_information()
-                info["salience_period"] = sal_period
-                info["ghosts_chase_level"] = ghost_chase_level
-                info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
-                info["ITI_length"] = ITI_buffer_time
-                trial_info_list.append(info)
+            # if not len(trial_info_list): # let first row of log be the trial onset information
+            #     print('coooooooool')
+            #     info = game.log_information()
+            #     info["salience_period"] = sal_period
+            #     info["ghosts_chase_level"] = ghost_chase_level
+            #     info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
+            #     info["ITI_length"] = ITI_buffer_time
+            #     trial_info_list.append(info)
             
             logging_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000
             sal_period_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000              

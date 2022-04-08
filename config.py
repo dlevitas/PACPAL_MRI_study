@@ -3,18 +3,18 @@ import pygame
 
 # experiment variables
 data_dir = os.path.join(os.getcwd(), "data")
-log_interval = 0.5 # sec (default is 0.5; ideally should reflect the scanner TR)
-response_device = "test" # either "keyboard" or "mri" or "test"
+log_interval = 1 # sec (default is 0.5; ideally should reflect the scanner TR)
+response_device = "mri" # either "keyboard" or "mri" or "test"
 
 run_length = 10 # min
 start_run_buffer_time = 6 # sec
-ITI_buffer_times = [3, 3.5, 4, 4.5, 5] # sec (will randomly select ITI buffer time in gaussian distribution fashion
+ITI_buffer_times = [3, 3.5, 4, 4.5, 5] # sec (will randomly select ITI buffer time in exponential distribution
 end_run_buffer_time = 6 # sec
 
 safe_chase_level = 10 # an integer ranging from 1-100 (default is 10)
 threat_chase_level = 90  # an integer ranging from 1-100 (default is 90)
 sal_period_len = 15 # sec
-player_speed = 3 # (can be either 2 or 3)
+player_max_speed = 3 # (can be either 2 or 3)
 
 health_bump = 20 # pixels
 health_decay = 0.10 # px/sec. Decay rate of health bar, in pixels per second
@@ -50,5 +50,3 @@ BLACK = (0,0,0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
-PINK = (255,100,180)
-ORANGE = (255,128,0)

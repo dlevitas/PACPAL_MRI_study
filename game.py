@@ -6,7 +6,7 @@ from ghosts import Block, Ellipse, ghost
 from layout import enviroment_setup, draw_enviroment
 
 class Game(object):
-    def __init__(self, player_speed, grid, player_start_pos, ghosts_start_pos, 
+    def __init__(self, player_max_speed, grid, player_start_pos, ghosts_start_pos, 
                  dots_info, grid_id, horizontal, vertical, intersection_2way, 
                  intersection_3way, intersection_4way, all_points_info, cum_bonus, 
                  sal_period, loss_penalty, health_decay, ghosts_threat_speed_options,
@@ -19,12 +19,12 @@ class Game(object):
         self.dots_info = dots_info # location of dots on grid
         self.font = pygame.font.Font(None, 30) # font for displaying the cumulative bonus on the screen
         self.trial_end_reason = "N/A" # caught, no_health, or won
-        self.player_speed = player_speed # how fast player can move
+        self.player_max_speed = player_max_speed # fastest speed player can go
         self.sal_period = sal_period
         self.health_decay = health_decay
 
         # Create the player
-        self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_speed, self.health_decay)
+        self.player = Player(player_start_pos[0], player_start_pos[1], "player.png", self.player_max_speed, self.health_decay)
         self.player.start_pos = player_start_pos
         
         # Create the blocks that will set the paths where the player can go
@@ -39,7 +39,8 @@ class Game(object):
         # Add the dots inside the game
         for dot_info in dots_info:
             if dot_info[1] == min([x[1] for x in self.dots_info]):
-                self.dots_group.add(Ellipse(dot_info[0][0]+10, dot_info[0][1]+10, PINK, 15, 15))
+                self.visible_dot_loc = dot_info[0]
+                self.dots_group.add(Ellipse(dot_info[0][0]+10, dot_info[0][1]+10, WHITE, 15, 15))
 
         # specify direction player is moving
         self.player.direction_facing = "still"
@@ -67,8 +68,8 @@ class Game(object):
 
         # Create the ghosts
         self.ghosts = pygame.sprite.Group()
-        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_speed, self.ghosts_threat_speed_options))
-        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_speed, self.ghosts_threat_speed_options))
+        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_max_speed, self.ghosts_threat_speed_options))
+        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_max_speed, self.ghosts_threat_speed_options))
         self.ghosts.start_pos = ghosts_start_pos
 
 
@@ -95,7 +96,6 @@ class Game(object):
                     self.player.direction_facing = "down"
 
             elif event.type == pygame.KEYUP:
-#                self.player.direction_facing = "still"
                 if event.key == keyboard_right_key:
                     self.player.stop_move_right()
                 elif event.key == keyboard_left_key:
@@ -129,7 +129,6 @@ class Game(object):
                     self.player.direction_facing = "down"
 
             elif event.type == pygame.KEYUP:
-#                self.player.direction_facing = "still"
                 if event.key == test_right_key:
                     self.player.stop_move_right()
                 elif event.key == test_left_key:
@@ -185,7 +184,7 @@ class Game(object):
         if self.trial_over:
             grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
-            self.__init__(self.player_speed, grid, player_start_pos, 
+            self.__init__(self.player_max_speed, grid, player_start_pos, 
                           ghosts_start_pos, dots_info, grid_id, horizontal, 
                           vertical, intersection_2way, intersection_3way, 
                           intersection_4way, all_points_info, self.cum_bonus, 
@@ -228,11 +227,8 @@ class Game(object):
             self.trial_over = self.player.trial_over
             self.ghosts.update(self.horizontal_blocks, self.vertical_blocks, self.intersection_blocks, self.player.rect.topleft, self.all_points_info, self.sal_period, self.ghost_chase_level)
             
-            # Add the dots inside the game
-            # for dot_info in dots_info:
-            #     if dot_info[1] == min([x[1] for x in self.dots_info]):
-            #         self.dots_group.add(Ellipse(dots_info[0][0]+10, dot_info[0][1]+10, PINK, 15, 15))
             self.dots_group.add(Ellipse(self.dots_info[0][0][0]+10, self.dots_info[0][0][1]+10, WHITE, 15, 15))
+            self.visible_dot_loc = self.dots_info[0][0]
 
         return False
 
@@ -261,13 +257,15 @@ class Game(object):
     def log_information(self):
         info = {}
         ghost_locations = []
-        ghost_distances_from_player = []
-        dot_distances_from_player = []
+        ghost_distances_from_player_manhattan = []
+        ghost_distances_from_player_euclidean = []
+        dot_distances_from_player_manhattan = []
+        dot_distances_from_player_euclidean = []
         info["grid_ID"] = self.grid_id
         info["player_start_pos"] = self.player.start_pos
         info["ghosts_start_pos"] = self.ghosts.start_pos
         info["player_loc"] = self.player.rect.topleft
-        info["player_speed"] = self.player_speed
+        info["player_max_speed"] = self.player_max_speed
         
         # if you "lose" trial, incur penalty
         if self.trial_end_reason in ["caught", "no_health"]:
@@ -277,47 +275,66 @@ class Game(object):
             
         for g in self.ghosts.sprites():
             ghost_locations.append(g.rect.topleft)
-            ghost_dist_from_player = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))
-            ghost_dist_from_player = int(round(ghost_dist_from_player, 0))
-            ghost_distances_from_player.append(ghost_dist_from_player)
+            
+            ghost_dist_from_player_manhattan = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))
+            ghost_dist_from_player_manhattan = int(round(ghost_dist_from_player_manhattan, 0))
+            ghost_distances_from_player_manhattan.append(ghost_dist_from_player_manhattan)
+            
+            ghost_dist_from_player_euclidean = distance.euclidean(list(self.player.rect.topleft), list(g.rect.topleft))
+            ghost_dist_from_player_euclidean = int(round(ghost_dist_from_player_euclidean, 0))
+            ghost_distances_from_player_euclidean.append(ghost_dist_from_player_euclidean)
+            
 
         for dot_loc in self.dots_info:
-            dot_dist_from_player = distance.cityblock(list(self.player.rect.topleft),list(dot_loc[0]))
-            dot_dist_from_player = int(round(dot_dist_from_player, 0))
-            dot_distances_from_player.append(dot_dist_from_player)
+            dot_dist_from_player_manhattan = distance.cityblock(list(self.player.rect.topleft),list(dot_loc[0]))
+            dot_dist_from_player_manhattan = int(round(dot_dist_from_player_manhattan, 0))
+            dot_distances_from_player_manhattan.append(dot_dist_from_player_manhattan)
+            
+            dot_dist_from_player_euclidean = distance.euclidean(list(self.player.rect.topleft),list(dot_loc[0]))
+            dot_dist_from_player_euclidean = int(round(dot_dist_from_player_euclidean, 0))
+            dot_distances_from_player_euclidean.append(dot_dist_from_player_euclidean)
 
         
         if self.trial_end_reason == "caught":
-            self.closest_ghost_dist = 0
+            self.closest_ghost_dist_manhattan = 0
+            self.closest_ghost_dist_euclidean = 0
         else:
-            if len(ghost_distances_from_player) == 2:
-                self.closest_ghost_dist = min(ghost_distances_from_player)
+            if len(ghost_distances_from_player_manhattan) == 2:
+                self.closest_ghost_dist_manhattan = min(ghost_distances_from_player_manhattan)
+                self.closest_ghost_dist_euclidean = min(ghost_distances_from_player_euclidean)
             else:
-                self.closest_ghost_dist = 0
+                self.closest_ghost_dist_manhattan = 0
+                self.closest_ghost_dist_euclidean = 0
                 
             
         if self.trial_end_reason == "won":
-            self.closest_dot_dist = 0
+            self.visible_dot_dist_manhattan = 0
+            self.visible_dot_dist_euclidean = 0
         else:
-            if len(dot_distances_from_player):
-                self.closest_dot_dist = min(dot_distances_from_player)
+            if len(dot_distances_from_player_manhattan):
+                self.visible_dot_dist_manhattan = min(dot_distances_from_player_manhattan)
+                self.visible_dot_dist_euclidean = min(dot_distances_from_player_euclidean)
             else:
-                self.closest_dot_dist = 0
+                self.visible_dot_dist_manhattan = 0
+                self.visible_dot_dist_euclidean = 0
 
 
         info["ghosts_locs"] = ghost_locations
-        info["dots_locs"] = self.dots_info
-        info["ghosts_dists_from_player"] = ghost_distances_from_player
-        info["dots_dists_from_player"] = dot_distances_from_player
-        info["closest_ghost_dist"] = self.closest_ghost_dist
-        info["closest_dot_dist"] = self.closest_dot_dist
+        info["all_dots_locs"] = [x[0] for x in self.dots_info]
+        info["visible_dot_loc"] = self.visible_dot_loc
+        info["ghosts_dists_from_player_manhattan"] = ghost_distances_from_player_manhattan
+        info["ghosts_dists_from_player_euclidean"] = ghost_distances_from_player_euclidean
+        info["visible_dot_dist_from_player_manhattan"] = self.visible_dot_dist_manhattan
+        info["visible_dot_dist_from_player_euclidean"] = self.visible_dot_dist_euclidean
+        info["closest_ghost_dist_manhattan"] = self.closest_ghost_dist_manhattan
+        info["closest_ghost_dist_euclidean"] = self.closest_ghost_dist_euclidean
         info["salience_period"] = self.sal_period
         try:
             info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
             info["ghosts_speed"] = self.ghosts.sprites()[0].speed
         except:
             info["ghosts_chase_level"] = 10
-            info["ghosts_speed"] = self.player_speed
+            info["ghosts_speed"] = self.player_max_speed
         info["player_direction_facing"] = self.player.direction_facing
         info["cum_bonus"] = round(self.cum_bonus,2)
         info["health"] = round(self.player.health, 2)

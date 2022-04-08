@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
     explosion = False
     trial_over = False
 
-    def __init__(self, x, y, filename, player_speed, health_decay):
+    def __init__(self, x, y, filename, player_max_speed, health_decay):
         # call the parent class (sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(filename).convert()
@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.trial_over = False
         self.health = 100
         self.health_decay = health_decay
-        self.speed = player_speed
+        self.max_speed = player_max_speed
         self.upVal = 0
         self.downVal = 0
         self.leftVal = 0
@@ -113,16 +113,16 @@ class Player(pygame.sprite.Sprite):
 
 
     def move_right(self):
-        self.change_x = self.speed
+        self.change_x = self.max_speed
 
     def move_left(self):
-        self.change_x = -self.speed
+        self.change_x = -self.max_speed
 
     def move_up(self):
-        self.change_y = -self.speed
+        self.change_y = -self.max_speed
 
     def move_down(self):
-        self.change_y = self.speed
+        self.change_y = self.max_speed
 
     def stop_move_right(self):
         if self.change_x != 0:
