@@ -336,7 +336,7 @@ class Game(object):
             info["ghosts_chase_level"] = 10
             info["ghosts_speed"] = self.player_max_speed
         info["player_direction_facing"] = self.player.direction_facing
-        info["cum_bonus"] = round(self.cum_bonus,2)
+        info["cumulative_bonus"] = round(self.cum_bonus,2)
         info["health"] = round(self.player.health, 2)
         info["trial_end_reason"] = self.trial_end_reason
 

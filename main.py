@@ -17,30 +17,10 @@ except:
 
 # Begin
 def main(threat_chase_level):
-    """Runs the PACMAN game. All classes and functions are referenced here."""
-    
+    """Runs the PACPAL game. All classes and functions are referenced here."""
     
     # get participant info
     subID, runID = participant_info()
-    
-    if runID == "0":
-        threat_chase_level = threat_chase_level-10
-        ghosts_threat_speed_options = [player_max_speed-1, player_max_speed, player_max_speed+1]
-    elif runID in ["1","2"]:
-        ghosts_threat_speed_options = [player_max_speed-1, 
-                                       player_max_speed, player_max_speed, 
-                                       player_max_speed+1, player_max_speed+1]
-    elif runID in ["3","4"]:
-        threat_chase_level = threat_chase_level+5
-        ghosts_threat_speed_options = [player_max_speed-1, 
-                                       player_max_speed, player_max_speed, 
-                                       player_max_speed+1, player_max_speed+1, player_max_speed+1]
-    elif runID in ["5","6"]:
-        threat_chase_level = threat_chase_level+10
-        ghosts_threat_speed_options = [player_max_speed-1, 
-                                       player_max_speed, player_max_speed, 
-                                       player_max_speed+1, player_max_speed+1, player_max_speed+1, player_max_speed+1]
-    
 
     # set path(s) for saved data
     if not os.path.isdir("{}".format(data_dir)):
@@ -61,6 +41,27 @@ def main(threat_chase_level):
     
     # clock
     clock = pygame.time.Clock()
+    
+    # Adjust difficulty levels depending on run
+    if runID == "0": # practice
+        threat_chase_level = threat_chase_level-5
+        ghosts_threat_speed_options = [player_max_speed-1, player_max_speed-1,
+                                       player_max_speed, player_max_speed,
+                                       player_max_speed+1]
+    elif runID in ["1","2"]: # runs 1-2
+        ghosts_threat_speed_options = [player_max_speed-1, 
+                                       player_max_speed, player_max_speed, 
+                                       player_max_speed+1, player_max_speed+1]
+    elif runID in ["3","4"]: # runs 3-4
+        threat_chase_level = threat_chase_level+5
+        ghosts_threat_speed_options = [player_max_speed-1, 
+                                       player_max_speed, player_max_speed, 
+                                       player_max_speed+1, player_max_speed+1, player_max_speed+1]
+    elif runID in ["5","6"]: # runs 5-6
+        threat_chase_level = threat_chase_level+10
+        ghosts_threat_speed_options = [player_max_speed-1, 
+                                       player_max_speed, player_max_speed, 
+                                       player_max_speed+1, player_max_speed+1, player_max_speed+1, player_max_speed+1]
     
     # set timers and index values for experiment
     cum_run_time = 0
@@ -86,11 +87,11 @@ def main(threat_chase_level):
     ITI_buffer_time = exponential_ITI(ITI_buffer_times)
     rand_num = random.randrange(100) # used to set seed that randomizes grid and player/ghosts locations
     
-    # determine cumulative experiment cum_bonus amount and trial number
+    # determine cumulative experiment bonus amount and trial number
     try:
         recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
-        trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0])
-        cum_bonus = pd.read_csv(recent_log_file, sep="\t")["cum_bonus"].iloc[-1]
+        trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0]) + 1
+        cum_bonus = pd.read_csv(recent_log_file, sep="\t")["cumulative_bonus"].iloc[-1]
     except:
         trial = 1
         cum_bonus = 0.00
@@ -124,16 +125,6 @@ def main(threat_chase_level):
             start_buffer = instructions.process_events()
             instructions.display_frame(screen)
 
-        # let first row of log be the trial onset information
-        if not len(trial_info_list): 
-            info = game.log_information()
-            info["player_speed"] = 0 # Player not moving at first
-            info["salience_period"] = sal_period
-            info["ghosts_chase_level"] = ghost_chase_level
-            info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
-            info["ITI_length"] = ITI_buffer_time
-            trial_info_list.append(info)
-
         # process events (keystrokes, mouse clicks, etc) and check if run ends
         if response_device == "keyboard":
             run_over = game.keyboard_process_events()
@@ -149,14 +140,13 @@ def main(threat_chase_level):
         game.display_frame(screen)
         
         if not trial_over:
-            # if not len(trial_info_list): # let first row of log be the trial onset information
-            #     print('coooooooool')
-            #     info = game.log_information()
-            #     info["salience_period"] = sal_period
-            #     info["ghosts_chase_level"] = ghost_chase_level
-            #     info["cum_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
-            #     info["ITI_length"] = ITI_buffer_time
-            #     trial_info_list.append(info)
+            if not len(trial_info_list): # let first row of log be the trial onset information
+                info = game.log_information()
+                info["salience_period"] = sal_period
+                info["ghosts_chase_level"] = ghost_chase_level
+                info["cumulative_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
+                info["ITI_length"] = ITI_buffer_time
+                trial_info_list.append(info)
             
             logging_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000
             sal_period_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000              
@@ -167,7 +157,7 @@ def main(threat_chase_level):
     
                 info = game.log_information()
                 
-                info["cum_run_time"] = cum_run_time/1000
+                info["cumulative_run_time"] = cum_run_time/1000
                 info["ITI_length"] = ITI_buffer_time
                 trial_info_list.append(info)
 
@@ -179,7 +169,7 @@ def main(threat_chase_level):
         else: # trial ends, enter inter trial interval (ITI) buffer period
             if len(trial_info_list): # add log information from trial offset, even if not at log interval
                 info = game.log_information()
-                info["cum_run_time"] = cum_run_time/1000
+                info["cumulative_run_time"] = cum_run_time/1000
                 info["ITI_length"] = ITI_buffer_time
                 trial_info_list.append(info)
             
@@ -204,7 +194,7 @@ def main(threat_chase_level):
         if cum_run_time >= run_length*60*1000 - end_run_buffer_time*1000:
             if len(trial_info_list): # add log information at trial offset, even if not at log interval
                 info = game.log_information()
-                info["cum_run_time"] = cum_run_time/1000
+                info["cumulative_run_time"] = cum_run_time/1000
                 info["ITI_length"] = ITI_buffer_time
                 info["trial_end_reason"] = "run_end"
                 trial_info_list.append(info)
