@@ -7,7 +7,7 @@ import pandas as pd
 from config import *
 from game import Game
 from layout import enviroment_setup
-from exp import Instructions, participant_info, save_data, exponential_ITI
+from exp import Instructions, participant_info, save_data, generate_ITI_distribution
 
 try:
     from natsort import natsorted
@@ -16,10 +16,24 @@ except:
     from natsort import natsorted
 
 # Begin
-def main(threat_chase_level):
-    """Runs the PACPAL game. All classes and functions are referenced here."""
+ITI_distribution = generate_ITI_distribution(ITI_list, ITI_distribution_type)
+
+def main(threat_chase_level, ITI_distribution):
+    """Runs the PACPAL game. All classes and functions are referenced here.
     
-    # get participant info
+    Parameters
+    ----------
+    threat_chase_level : int
+        Threat chase level threshold (0-100) of the ghosts. The value
+        corresponds to the % likelihood that the ghosts will seek to chase
+        you at each intersection, during the threat salience period.
+        
+    ITI_distribution: list
+        An inter-trial interval (ITI) distribution (exponential or normal)
+        list, where after each trial a value from the list is randomly selected.
+    """
+    
+    # get subject and run IDs
     subID, runID = participant_info()
 
     # set path(s) for saved data
@@ -42,16 +56,19 @@ def main(threat_chase_level):
     # clock
     clock = pygame.time.Clock()
     
-    # Adjust difficulty levels depending on run
+    """Adjust difficulty levels depending on run.
+    These level increases occur at set runs regardless of player performance.
+    Meant to keep player(s) engaged throughout the experiment.
+    """
     if runID == "0": # practice
-        threat_chase_level = threat_chase_level-5
-        ghosts_threat_speed_options = [player_max_speed-1, player_max_speed-1,
-                                       player_max_speed, player_max_speed,
+        threat_chase_level = threat_chase_level-10
+        ghosts_threat_speed_options = [player_max_speed-1, player_max_speed-1, player_max_speed-1, player_max_speed-1,
+                                       player_max_speed,
                                        player_max_speed+1]
     elif runID in ["1","2"]: # runs 1-2
         ghosts_threat_speed_options = [player_max_speed-1, 
-                                       player_max_speed, player_max_speed, 
-                                       player_max_speed+1, player_max_speed+1]
+                                        player_max_speed, player_max_speed, 
+                                        player_max_speed+1, player_max_speed+1]
     elif runID in ["3","4"]: # runs 3-4
         threat_chase_level = threat_chase_level+5
         ghosts_threat_speed_options = [player_max_speed-1, 
@@ -84,12 +101,13 @@ def main(threat_chase_level):
     # trial variables information
     trial = 1
     trial_info_list = []
-    ITI_buffer_time = exponential_ITI(ITI_buffer_times)
+    ITI_buffer_time = random.choice(ITI_distribution)
     rand_num = random.randrange(100) # used to set seed that randomizes grid and player/ghosts locations
     
-    # determine cumulative experiment bonus amount and trial number
+    # determine trial number and cumulative experiment bonus amount
     try:
-        recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) if "run-0" not in x])[-1]
+        recent_log_file = natsorted([x for x in glob.glob("{}/data/sub-{}/*.tsv".format(os.getcwd(), subID)) 
+                                 if "run-0" not in x])[-1]
         trial = int(recent_log_file.split("trial-")[1].split(".tsv")[0]) + 1
         cum_bonus = pd.read_csv(recent_log_file, sep="\t")["cumulative_bonus"].iloc[-1]
     except:
@@ -104,7 +122,8 @@ def main(threat_chase_level):
                 intersection_3way, intersection_4way, all_points_info, cum_bonus, 
                 sal_period, loss_penalty, health_decay, ghosts_threat_speed_options,
                 health_bump, bonus_increase)
-    instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, end_run_buffer_time, runID)
+    instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, 
+                                end_run_buffer_time, runID, loss_penalty)
 
     # display waiting screen until scanner sends trigger signaling the beginning of the scan
     while pre_exp:
@@ -121,7 +140,10 @@ def main(threat_chase_level):
         cum_run_time = pygame.time.get_ticks() - pre_run_elapsed_time
 
         while start_buffer:
-            instructions.__init__("start", start_run_buffer_time, pre_run_elapsed_time, 0, game.trial_end_reason, run_length, end_run_buffer_time, runID)
+            instructions.__init__("start", start_run_buffer_time, 
+                                  pre_run_elapsed_time, 0, game.trial_end_reason, 
+                                  run_length, end_run_buffer_time, runID, 
+                                  loss_penalty)
             start_buffer = instructions.process_events()
             instructions.display_frame(screen)
 
@@ -133,7 +155,7 @@ def main(threat_chase_level):
         elif response_device == "test":
             run_over = game.test_process_events()
         else:
-            raise ValueError("Unknown response device specified. Please use 'keyboard' or 'mri'")
+            raise ValueError("Unknown response device specified. Please use 'keyboard', 'mri', or 'test'.")
         # game logic is here, including checking for when the trial ends
         trial_over = game.run_logic(rand_num, sal_period, ghost_chase_level)
         # draw the current frame
@@ -173,6 +195,7 @@ def main(threat_chase_level):
                 info["ITI_length"] = ITI_buffer_time
                 trial_info_list.append(info)
             
+            # Save/update log information and update some variables
             save_data(data_dir, subID, runID, trial, trial_info_list)
             trial_info_list = []
             trial += 1
@@ -180,17 +203,19 @@ def main(threat_chase_level):
             rand_num = random.randrange(100)
             ITI_buffer = True
             run_elapsed_time = pygame.time.get_ticks()
-            instructions.__init__("ITI", ITI_buffer_time, pre_run_elapsed_time, run_elapsed_time, game.trial_end_reason, run_length, end_run_buffer_time, runID)
+            instructions.__init__("ITI", ITI_buffer_time, pre_run_elapsed_time, 
+                                  run_elapsed_time, game.trial_end_reason, 
+                                  run_length, end_run_buffer_time, runID, 
+                                  loss_penalty)
 
             while ITI_buffer:
                 ITI_buffer = instructions.process_events()
                 instructions.display_frame(screen)
             
             cum_ITI_buffer_time += ITI_buffer_time
-            # ITI_buffer_time = gauss_choice(ITI_buffer_times)
-            ITI_buffer_time = exponential_ITI(ITI_buffer_times)
+            ITI_buffer_time = random.choice(ITI_distribution)
 
-        # stop game several seconds before the end of the run
+        # stop gameplay several seconds before the end of the run
         if cum_run_time >= run_length*60*1000 - end_run_buffer_time*1000:
             if len(trial_info_list): # add log information at trial offset, even if not at log interval
                 info = game.log_information()
@@ -200,7 +225,10 @@ def main(threat_chase_level):
                 trial_info_list.append(info)
                 
             run_elapsed_time = pygame.time.get_ticks()
-            instructions.__init__("end", end_run_buffer_time, pre_run_elapsed_time, run_elapsed_time, game.trial_end_reason, run_length, end_run_buffer_time, runID)
+            instructions.__init__("end", end_run_buffer_time, 
+                                  pre_run_elapsed_time, run_elapsed_time, 
+                                  game.trial_end_reason, run_length, 
+                                  end_run_buffer_time, runID, loss_penalty)
 
             while end_buffer:
                 end_buffer = instructions.process_events()
@@ -211,8 +239,9 @@ def main(threat_chase_level):
     if len(trial_info_list):
         save_data(data_dir, subID, runID, trial, trial_info_list)
 
-    # quit the game (i.e. end of run)
+    # quit the game, due to the run ending, or from pressing the Esc key
     pygame.quit()
 
+# Run the experiment
 if __name__ == '__main__':
-    main(threat_chase_level)
+    main(threat_chase_level, ITI_distribution)

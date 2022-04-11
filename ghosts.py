@@ -1,5 +1,6 @@
 import pygame
 import random
+import numpy as np
 from config import *
 from scipy.spatial import distance
 
@@ -44,10 +45,10 @@ class ghost(pygame.sprite.Sprite):
         self.image = pygame.image.load("ghosts_threat.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        self.direction = "NA"
         self.chase_level = 10
         self.ghosts_threat_speed_options = ghosts_threat_speed_options
         self.speed = min(self.ghosts_threat_speed_options)
+        self.direction = "NA"
         self.upVal = 0
         self.downVal = 0
         self.leftVal = 0
@@ -56,7 +57,7 @@ class ghost(pygame.sprite.Sprite):
         self.best_chase_dir = ""
         self.previous_best_chase_dir = ""
         self.previous_best_chase_dir_flip = ""
-
+        
     def update(self, horizontal_blocks, vertical_blocks, intersection_blocks, player_loc, all_points_info, sal_period, chase_level):
         self.rect.x += self.change_x
         self.rect.y += self.change_y
@@ -69,8 +70,10 @@ class ghost(pygame.sprite.Sprite):
         # load ghost image based on salience condition period
         if self.sal_period == "safe":
             self.image = pygame.image.load("ghosts_safe.png").convert_alpha()
+            # self.speed = min(self.ghosts_threat_speed_options) # slow down speed when entering "safe" period, even if ghost isn't at intersection
         else:
             self.image = pygame.image.load("ghosts_threat.png").convert_alpha()
+            # self.speed = round(np.mean(np.unique(self.ghosts_threat_speed_options))) #  make ghosts player speed when entering "threat" period, even if ghost isn't at intersection
             
 
         if self.rect.topleft in [x[0] for x in all_points_info]:
@@ -133,6 +136,7 @@ class ghost(pygame.sprite.Sprite):
                         self.direction = "up"
                     elif self.change_y == self.speed: # already moving down, so keep it that way
                         self.direction = "down"
+
 
         # apply direction and speed changes once ghost reaches intersection
         if self.direction == "left":

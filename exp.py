@@ -8,7 +8,7 @@ import pandas as pd
 import subprocess as subp
 from config import *
 from scipy.stats import expon
-# from random import normalvariate
+from random import normalvariate
 
 
 
@@ -24,10 +24,12 @@ def quit_check():
 class Instructions(object):
     """Display instructions during different parts of game."""
     
-    def __init__(self, period, buffer_time, pre_run_elapsed_time, run_elapsed_time, trial_end_reason, run_length, end_buffer_time, runID):
+    def __init__(self, period, buffer_time, pre_run_elapsed_time, 
+                 run_elapsed_time, trial_end_reason, run_length, 
+                 end_buffer_time, runID, loss_penalty):
         self.text = "Please wait for the scan to begin"
         self.font_color = WHITE
-        self.select_color = (255, 255, 255)
+        self.select_color = WHITE
         self.font = pygame.font.Font(None, 30)
         self.period = period
         self.buffer_time = buffer_time
@@ -37,6 +39,7 @@ class Instructions(object):
         self.run_length = run_length
         self.end_buffer_time = end_buffer_time
         self.runID = runID
+        self.loss_penalty = loss_penalty
         if int(self.runID) == 0:
             self.buffer_time = 2 # in sec
 
@@ -77,9 +80,11 @@ class Instructions(object):
 
         elif self.period == "ITI":
             if self.trial_end_reason in ["caught", "no_health"]:
-                self.text = "You lost. Please wait several seconds for the next trial to begin"
+                self.text = "You lost ${}. Please wait several seconds for the next trial to begin".format(self.loss_penalty)
+                self.select_color = RED
             else:
                 self.text = "You won. Please wait several seconds for the next trial to begin"
+                self.select_color = GREEN
 
             # exit game if ITI buffer period dips into end run buffer period
             if pygame.time.get_ticks() >= self.run_length*60*1000 + self.pre_run_elapsed_time - self.end_buffer_time*1000:
@@ -127,7 +132,19 @@ class Instructions(object):
 
 def participant_info():
     """Allows experimenter to enter participant ID and run ID and checks to 
-    ensure that they are proper (e.g. no non-alphanumeric characters allowed)."""
+    ensure that they are proper (e.g. no non-alphanumeric characters allowed).
+    
+    Parameters
+    ----------
+    N/A
+
+    Returns
+    -------
+    subID : str
+        subject ID
+    runID : str
+        run ID
+    """
     
     print("Enter subject ID:")
     s = input()
@@ -172,59 +189,82 @@ def save_data(data_dir, subID, runID, trial, trial_info_list):
                   sep="\t", index=False, columns=list(list(trial_info_list[0].keys())))
         
 
-# def gauss_choice(lst, mean=None, stddev=None):
-#     """Select items from list in a normal (gaussian) fashion. Code comes from:
-#     https://stackoverflow.com/a/35472572"""
-#     if mean is None:
-#         # if mean is not specified, use center of list
-#         mean = (len(lst) - 1) / 2
-
-#     if stddev is None:
-#         # if stddev is not specified, let list be -3 .. +3 standard deviations
-#         stddev = len(lst) / 6
-
-#     while True:
-#         index = int(normalvariate(mean, stddev) + 0.5)
-#         if 0 <= index < len(lst):
-#             return lst[index]
-
-def exponential_ITI(ITI_buffer_times):
-    """Select ITI buffer time from an exponential distribution array."""
+# def exponential_ITI(ITI_buffer_times):
+#     """Select ITI buffer time from an exponential distribution array."""
     
-    options = expon.rvs(scale=1,loc=ITI_buffer_times[0],size=1000).round(decimals=0)
+#     options = expon.rvs(scale=1,loc=ITI_buffer_times[0],size=1000).round(decimals=0)
     
-    option = random.choice(options)
-    if option > max(ITI_buffer_times):
-        option = max(ITI_buffer_times)
+#     option = random.choice(options)
+#     if option > max(ITI_buffer_times):
+#         option = max(ITI_buffer_times)
     
-    return option
+#     return option
 
-
-def get_screen_resolution():
-    """Determine Monitor Resolution."""
+def generate_ITI_distribution(ITI_list, distribution_type, mean=None, stddev=None, size=500):
+    """Generate an inter-trial interval (ITI) distribution list for the
+    experiment. Distributions can be either exponential or normal (gaussian).
     
-    if platform.system() == "Windows":
-        from win32api import GetSystemMetrics
-        w_pix, h_pix = GetSystemMetrics(0), GetSystemMetrics(1)
-    elif platform.system() == "Darwin":
-        p = subp.Popen(shlex.split("system_profiler SPDisplaysDataType"), stdout=subp.PIPE)
-        output = subp.check_output(('grep', 'Resolution'), stdin=p.stdout)
-        if '@' in output:
-            w_pix, h_pix = [int(x.strip(" ")) for x in output.split(':')[-1].split("@")[0].split(' x ')]
-        elif 'Retina' in output:
-            w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("Retina")[0:1][0].split(' x ')]
-        elif 'QHD/WQHD - Wide Quad High Definition' in output:
-            w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("(QHD/WQHD - Wide Quad High Definition)")[0:1][0].split(' x ')]
-    elif platform.system() == "Linux":
-        output = subp.check_output("xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'", shell=True).decode("utf-8")
-        w_pix = int(output.split("x")[0])
-        h_pix = int(output.split("x")[-1].split("\n")[0])
+    Parameters
+    ----------
+    distribution_type : string
+        "exponential" or "normal".
+    Returns
+    -------
+    ITI_distribution : list
+        an inter-trial interval (ITI) distribution list for the
+    experiment.
+    """
+
+    if distribution_type == "exponential":
+        return list(expon.rvs(scale=1,loc=ITI_list[0],size=size).round(decimals=0))
+    
+    elif distribution_type == "normal":
+        ITI_distribution = []
+        counter = 0
+        """Select items from list in a normal (gaussian) fashion. Code comes from:
+        https://stackoverflow.com/a/35472572"""
+        if mean is None:
+            # if mean is not specified, use center of list
+            mean = (len(ITI_list) - 1) / 2
+        if stddev is None:
+            # if stddev is not specified, let list be -3 .. +3 standard deviations
+            stddev = len(ITI_list) / 6
+        while counter <= size:
+            index = int(normalvariate(mean, stddev) + 0.5)
+            if 0 <= index < len(ITI_list):
+                ITI_distribution.append(ITI_list[index])
+                counter += 1
+        return ITI_distribution
     else:
-        raise ValueError("Operating System (OS) not recognized, cannot determine monitor resolution")
+        return ValueError("An improper ITI distribution type was selected.")
+
+        
+
+# def get_screen_resolution():
+#     """Determine Monitor Resolution."""
+    
+#     if platform.system() == "Windows":
+#         from win32api import GetSystemMetrics
+#         w_pix, h_pix = GetSystemMetrics(0), GetSystemMetrics(1)
+#     elif platform.system() == "Darwin":
+#         p = subp.Popen(shlex.split("system_profiler SPDisplaysDataType"), stdout=subp.PIPE)
+#         output = subp.check_output(('grep', 'Resolution'), stdin=p.stdout)
+#         if '@' in output:
+#             w_pix, h_pix = [int(x.strip(" ")) for x in output.split(':')[-1].split("@")[0].split(' x ')]
+#         elif 'Retina' in output:
+#             w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("Retina")[0:1][0].split(' x ')]
+#         elif 'QHD/WQHD - Wide Quad High Definition' in output:
+#             w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("(QHD/WQHD - Wide Quad High Definition)")[0:1][0].split(' x ')]
+#     elif platform.system() == "Linux":
+#         output = subp.check_output("xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'", shell=True).decode("utf-8")
+#         w_pix = int(output.split("x")[0])
+#         h_pix = int(output.split("x")[-1].split("\n")[0])
+#     else:
+#         raise ValueError("Operating System (OS) not recognized, cannot determine monitor resolution")
             
-#    aspect_ratio = w_pix / h_pix
+# #    aspect_ratio = w_pix / h_pix
     
-#    screen_width = round(w_pix / aspect_ratio)
-#    screen_height = round(h_pix / aspect_ratio)
+# #    screen_width = round(w_pix / aspect_ratio)
+# #    screen_height = round(h_pix / aspect_ratio)
     
-    return w_pix, h_pix
+#     return w_pix, h_pix

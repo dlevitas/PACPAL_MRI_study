@@ -8,7 +8,8 @@ response_device = "test" # either "keyboard" or "mri" or "test"
 
 run_length = 10 # min
 start_run_buffer_time = 6 # sec
-ITI_buffer_times = [3,4,5] # sec (values used to create an exponential distribution of possible ITI times)
+ITI_list = [3] # sec (values used to create an exponential distribution of possible ITI times)
+ITI_distribution_type = "exponential" # either "exponential" or "normal"
 end_run_buffer_time = 6 # sec
 
 safe_chase_level = 10 # an integer ranging from 1-100
@@ -18,8 +19,8 @@ player_max_speed = 3 # (can be either 2 or 3)
 
 health_bump = 20 # pixels
 health_decay = 0.10 # px/sec. Decay rate of health bar, in pixels per second
-bonus_increase = 0.06 # in cents ($1 = 1.00, 50 cents = 0.50, etc)
-loss_penalty = 0.02 # $$. How much money is lost when caught by ghosts or when health reaches 0
+bonus_increase = 0.05 # $$ (1.00 = $1, 0.50 = $0.50, etc)
+loss_penalty = 0.15 # $$. How much money is lost when caught by ghosts or when health reaches 0
 
 
 # pygame variables
@@ -42,6 +43,7 @@ test_down_key = pygame.K_f
 practice_begin_key = pygame.K_RETURN
 exp_begin_key = pygame.K_BACKQUOTE
 
+# variables below are hard coded; adjusting them will break game
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 648
 
