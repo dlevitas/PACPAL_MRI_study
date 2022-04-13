@@ -114,10 +114,8 @@ class ghost(pygame.sprite.Sprite):
         # load ghost image based on salience condition period
         if self.sal_period == "safe":
             self.image = pygame.image.load("ghosts_safe.png").convert_alpha()
-            # self.speed = min(self.ghosts_threat_speed_options) # slow down speed when entering "safe" period, even if ghost isn't at intersection
         else:
             self.image = pygame.image.load("ghosts_threat.png").convert_alpha()
-            # self.speed = round(np.mean(np.unique(self.ghosts_threat_speed_options))) #  make ghosts player speed when entering "threat" period, even if ghost isn't at intersection
             
 
         if self.rect.topleft in [x[0] for x in all_points_info]:

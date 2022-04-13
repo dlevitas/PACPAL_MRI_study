@@ -75,11 +75,14 @@ class Instructions(object):
                 return False
 
         elif self.period == "ITI":
-            if self.trial_end_reason in ["caught", "no_health"]:
-                self.text = "You lost ${}. Please wait several seconds for the next trial to begin".format(self.loss_penalty)
+            if self.trial_end_reason == "caught":
+                self.text = "You lost ${} (caught by ghosts). Please wait several seconds for the next trial to begin".format(self.loss_penalty)
+                self.select_color = RED
+            elif self.trial_end_reason == "no_health":
+                self.text = "You lost ${} (ran out of health). Please wait several seconds for the next trial to begin".format(self.loss_penalty)
                 self.select_color = RED
             else:
-                self.text = "You won. Please wait several seconds for the next trial to begin"
+                self.text = "You won (collected all dots on grid). Please wait several seconds for the next trial to begin"
                 self.select_color = GREEN
 
             # exit game if ITI buffer period dips into end run buffer period

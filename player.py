@@ -87,7 +87,6 @@ class Player(pygame.sprite.Sprite):
                     self.rect.centerx = block.rect.centerx
                     self.change_x = 0
 
-
             # this will cause the animation to start
             if self.change_x > 0:
                 self.move_right_animation.update(10)
@@ -145,8 +144,6 @@ class Player(pygame.sprite.Sprite):
         self.change_y = 0
 
 
-
-
 class Animation(object):
     def __init__(self, img, width, height):
         # load the sprite sheet
@@ -196,7 +193,3 @@ class Animation(object):
             self.index += 1
             if self.index == len(self.image_list):
                 self.index = 0
-
-
-
-

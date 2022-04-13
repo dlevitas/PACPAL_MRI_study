@@ -330,10 +330,10 @@ class Game(object):
         info["closest_ghost_dist_euclidean"] = self.closest_ghost_dist_euclidean
         info["salience_period"] = self.sal_period
         try:
-            info["ghosts_chase_level"] = self.ghosts.sprites()[0].chase_level
+            info["ghosts_best_dir_level"] = self.ghosts.sprites()[0].best_dir_level
             info["ghosts_speed"] = self.ghosts.sprites()[0].speed
         except:
-            info["ghosts_chase_level"] = 10
+            info["ghosts_best_dir_level"] = 10
             info["ghosts_speed"] = self.player_max_speed
         info["player_direction_facing"] = self.player.direction_facing
         info["cumulative_bonus"] = round(self.cum_bonus,2)
