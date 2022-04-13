@@ -12,8 +12,8 @@ ITI_list = [3] # sec (values used to create an exponential distribution of possi
 ITI_distribution_type = "exponential" # either "exponential" or "normal"
 end_run_buffer_time = 6 # sec
 
-safe_best_dir_level = 75 # integer ranging from 1-100
-threat_best_dir_level = 90 # integer ranging from 1-100
+safe_best_dir_level = 75 # integer ranging from 1-100. Probability of ghosts venturing towards dot
+threat_best_dir_level = 90 # integer ranging from 1-100. Probability of ghosts chasing player
 sal_period_len = 15 # sec
 player_max_speed = 3 # (can be either 2 or 3)
 
