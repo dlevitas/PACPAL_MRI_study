@@ -18,15 +18,15 @@ except:
 # Begin
 ITI_distribution = generate_ITI_distribution(ITI_list, ITI_distribution_type)
 
-def main(threat_chase_level, ITI_distribution):
+def main(threat_best_dir_level, ITI_distribution):
     """Runs the PACPAL game. All classes and functions are referenced here.
     
     Parameters
     ----------
-    threat_chase_level : int
-        Threat chase level threshold (0-100) of the ghosts. The value
+    threat_best_dir_level : int
+        Threat best direction level threshold (0-100) of the ghosts. The value
         corresponds to the % likelihood that the ghosts will seek to chase
-        you at each intersection, during the threat salience period.
+        player at each intersection, during the threat salience period.
         
     ITI_distribution: list
         An inter-trial interval (ITI) distribution (exponential or normal)
@@ -61,7 +61,7 @@ def main(threat_chase_level, ITI_distribution):
     Meant to keep player(s) engaged throughout the experiment.
     """
     if runID == "0": # practice
-        threat_chase_level = threat_chase_level-10
+        threat_best_dir_level = threat_best_dir_level-10
         ghosts_threat_speed_options = [player_max_speed-1, player_max_speed-1, player_max_speed-1, player_max_speed-1,
                                        player_max_speed,
                                        player_max_speed+1]
@@ -70,12 +70,12 @@ def main(threat_chase_level, ITI_distribution):
                                         player_max_speed, player_max_speed, 
                                         player_max_speed+1, player_max_speed+1]
     elif runID in ["3","4"]: # runs 3-4
-        threat_chase_level = threat_chase_level+5
+        threat_best_dir_level = threat_best_dir_level+5
         ghosts_threat_speed_options = [player_max_speed-1, 
                                        player_max_speed, player_max_speed, 
                                        player_max_speed+1, player_max_speed+1, player_max_speed+1]
     elif runID in ["5","6"]: # runs 5-6
-        threat_chase_level = threat_chase_level+10
+        threat_best_dir_level = threat_best_dir_level+10
         ghosts_threat_speed_options = [player_max_speed-1, 
                                        player_max_speed, player_max_speed, 
                                        player_max_speed+1, player_max_speed+1, player_max_speed+1, player_max_speed+1]
@@ -95,8 +95,8 @@ def main(threat_chase_level, ITI_distribution):
     end_buffer = True
 
     # salience period variables
-    sal_period_info = {"safe": safe_chase_level, "threat": threat_chase_level}
-    sal_period, ghost_chase_level = random.choice(list(sal_period_info.items()))
+    sal_period_info = {"safe": safe_best_dir_level, "threat": threat_best_dir_level}
+    sal_period, ghost_best_dir_level = random.choice(list(sal_period_info.items()))
 
     # trial variables information
     trial = 1
@@ -115,7 +115,7 @@ def main(threat_chase_level, ITI_distribution):
         cum_bonus = 0.00
         
     # create game and instructions objects
-    grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
+    grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num, num_dots)
     all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
     game = Game(player_max_speed, grid, player_start_pos, ghosts_start_pos, 
                 dots_info, grid_id, horizontal, vertical, intersection_2way, 
@@ -157,7 +157,7 @@ def main(threat_chase_level, ITI_distribution):
         else:
             raise ValueError("Unknown response device specified. Please use 'keyboard', 'mri', or 'test'.")
         # game logic is here, including checking for when the trial ends
-        trial_over = game.run_logic(rand_num, sal_period, ghost_chase_level)
+        trial_over = game.run_logic(rand_num, sal_period, ghost_best_dir_level)
         # draw the current frame
         game.display_frame(screen)
         
@@ -165,7 +165,7 @@ def main(threat_chase_level, ITI_distribution):
             if not len(trial_info_list): # let first row of log be the trial onset information
                 info = game.log_information()
                 info["salience_period"] = sal_period
-                info["ghosts_chase_level"] = ghost_chase_level
+                info["ghosts_best_dir_level"] = ghost_best_dir_level
                 info["cumulative_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
                 info["ITI_length"] = ITI_buffer_time
                 trial_info_list.append(info)
@@ -185,7 +185,7 @@ def main(threat_chase_level, ITI_distribution):
 
             # update salience period
             if sal_period_timer/sal_period_timer_index >= sal_period_len*1000:
-                sal_period, ghost_chase_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
+                sal_period, ghost_best_dir_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
                 sal_period_timer_index += 1
 
         else: # trial ends, enter inter trial interval (ITI) buffer period
@@ -244,4 +244,4 @@ def main(threat_chase_level, ITI_distribution):
 
 # Run the experiment
 if __name__ == '__main__':
-    main(threat_chase_level, ITI_distribution)
+    main(threat_best_dir_level, ITI_distribution)

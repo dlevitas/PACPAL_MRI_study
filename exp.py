@@ -1,15 +1,11 @@
 from __future__ import division
 import os
-import shlex
 import pygame
 import random
-import platform
 import pandas as pd
-import subprocess as subp
 from config import *
 from scipy.stats import expon
 from random import normalvariate
-
 
 
 def quit_check():
@@ -237,34 +233,3 @@ def generate_ITI_distribution(ITI_list, distribution_type, mean=None, stddev=Non
         return ITI_distribution
     else:
         return ValueError("An improper ITI distribution type was selected.")
-
-        
-
-# def get_screen_resolution():
-#     """Determine Monitor Resolution."""
-    
-#     if platform.system() == "Windows":
-#         from win32api import GetSystemMetrics
-#         w_pix, h_pix = GetSystemMetrics(0), GetSystemMetrics(1)
-#     elif platform.system() == "Darwin":
-#         p = subp.Popen(shlex.split("system_profiler SPDisplaysDataType"), stdout=subp.PIPE)
-#         output = subp.check_output(('grep', 'Resolution'), stdin=p.stdout)
-#         if '@' in output:
-#             w_pix, h_pix = [int(x.strip(" ")) for x in output.split(':')[-1].split("@")[0].split(' x ')]
-#         elif 'Retina' in output:
-#             w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("Retina")[0:1][0].split(' x ')]
-#         elif 'QHD/WQHD - Wide Quad High Definition' in output:
-#             w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("(QHD/WQHD - Wide Quad High Definition)")[0:1][0].split(' x ')]
-#     elif platform.system() == "Linux":
-#         output = subp.check_output("xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'", shell=True).decode("utf-8")
-#         w_pix = int(output.split("x")[0])
-#         h_pix = int(output.split("x")[-1].split("\n")[0])
-#     else:
-#         raise ValueError("Operating System (OS) not recognized, cannot determine monitor resolution")
-            
-# #    aspect_ratio = w_pix / h_pix
-    
-# #    screen_width = round(w_pix / aspect_ratio)
-# #    screen_height = round(h_pix / aspect_ratio)
-    
-#     return w_pix, h_pix

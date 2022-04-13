@@ -177,12 +177,12 @@ class Game(object):
         return False              
             
             
-    def run_logic(self, rand_num, sal_period, ghost_chase_level):
+    def run_logic(self, rand_num, sal_period, ghost_best_dir_level):
         self.sal_period = sal_period
-        self.ghost_chase_level = ghost_chase_level
+        self.ghost_best_dir_level = ghost_best_dir_level
 
         if self.trial_over:
-            grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num)
+            grid, player_start_pos, ghosts_start_pos, dots_info, grid_id, horizontal, vertical, intersection_2way, intersection_3way, intersection_4way = enviroment_setup(rand_num, num_dots)
             all_points_info = horizontal + vertical + intersection_2way + intersection_3way + intersection_4way
             self.__init__(self.player_max_speed, grid, player_start_pos, 
                           ghosts_start_pos, dots_info, grid_id, horizontal, 
@@ -225,7 +225,7 @@ class Game(object):
                 return True
             
             self.trial_over = self.player.trial_over
-            self.ghosts.update(self.horizontal_blocks, self.vertical_blocks, self.intersection_blocks, self.player.rect.topleft, self.all_points_info, self.sal_period, self.ghost_chase_level)
+            self.ghosts.update(self.horizontal_blocks, self.vertical_blocks, self.intersection_blocks, self.player.rect.topleft, self.visible_dot_loc, self.all_points_info, self.sal_period, self.ghost_best_dir_level)
             
             self.dots_group.add(Ellipse(self.dots_info[0][0][0]+10, self.dots_info[0][0][1]+10, WHITE, 15, 15))
             self.visible_dot_loc = self.dots_info[0][0]

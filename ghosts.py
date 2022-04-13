@@ -45,7 +45,7 @@ class ghost(pygame.sprite.Sprite):
         self.image = pygame.image.load("ghosts_threat.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        self.chase_level = 10
+        self.best_dir_level = 10
         self.ghosts_threat_speed_options = ghosts_threat_speed_options
         self.speed = min(self.ghosts_threat_speed_options)
         self.direction = "NA"
@@ -54,16 +54,60 @@ class ghost(pygame.sprite.Sprite):
         self.leftVal = 0
         self.rightVal = 0
         self.distance_from_player = 1000
-        self.best_chase_dir = ""
-        self.previous_best_chase_dir = ""
-        self.previous_best_chase_dir_flip = ""
+        self.best_dir = ""
+        self.previous_best_dir = ""
+        self.previous_best_dir_flip = ""
         
-    def update(self, horizontal_blocks, vertical_blocks, intersection_blocks, player_loc, all_points_info, sal_period, chase_level):
+    def choose_direction(self, legal_directions, player_loc, visible_dot_loc):
+        direction_options = {}
+        for legal_dir in legal_directions:
+            if legal_dir == "up":
+                new_pos_loc = tuple(map(lambda i, j: i - j, self.rect.topleft, (0, 36)))
+            elif legal_dir == "down":
+                new_pos_loc = tuple(map(lambda i, j: i + j, self.rect.topleft, (0, 36)))
+            elif legal_dir == "right":
+                new_pos_loc = tuple(map(lambda i, j: i + j, self.rect.topleft, (36, 0)))
+            elif legal_dir == "left":
+                new_pos_loc = tuple(map(lambda i, j: i - j, self.rect.topleft, (36, 0)))
+
+            if self.sal_period == "threat":            
+                new_dist = distance.cityblock(list(new_pos_loc), list(player_loc))
+            else:
+                new_dist = distance.cityblock(list(new_pos_loc), list(visible_dot_loc))
+                
+            direction_options[legal_dir] = new_dist
+
+        min_dist = min(direction_options.items(), key=lambda x : x[1])[1]
+        min_dist_directions = [key for (key, value) in direction_options.items() if value == min_dist]
+
+        if len(min_dist_directions) == 1:
+            self.best_dir = min_dist_directions[0]
+        else:
+            self.best_dir = [x for x in min_dist_directions if x != self.previous_best_dir_flip][0]
+
+        self.previous_best_dir = self.best_dir
+        if self.previous_best_dir == "up":
+            self.previous_best_dir_flip = "down"
+        elif self.previous_best_dir == "down":
+            self.previous_best_dir_flip = "up"
+        elif self.previous_best_dir == "left":
+            self.previous_best_dir_flip = "right"
+        elif self.previous_best_dir == "right":
+            self.previous_best_dir_flip = "left"
+
+        if random.choice([x for x in range(1, 101)]) <= self.best_dir_level:
+            self.direction = self.best_dir
+        else:
+            self.direction = random.choice([x for x in legal_directions if x != self.best_dir])
+        
+        return self
+    
+    def update(self, horizontal_blocks, vertical_blocks, intersection_blocks, player_loc, visible_dot_loc, all_points_info, sal_period, best_dir_level):
         self.rect.x += self.change_x
         self.rect.y += self.change_y
         
         self.sal_period = sal_period
-        self.chase_level = chase_level
+        self.best_dir_level = best_dir_level
 
         self.distance_from_player = distance.cityblock(list(self.rect.topleft), list(player_loc))
         
@@ -89,42 +133,8 @@ class ghost(pygame.sprite.Sprite):
                 else:
                     self.speed = min(self.ghosts_threat_speed_options)
                 
-                chase_options = {}
-                for legal_dir in legal_directions:
-                    if legal_dir == "up":
-                        new_pos_loc = tuple(map(lambda i, j: i - j, self.rect.topleft, (0, 36)))
-                    elif legal_dir == "down":
-                        new_pos_loc = tuple(map(lambda i, j: i + j, self.rect.topleft, (0, 36)))
-                    elif legal_dir == "right":
-                        new_pos_loc = tuple(map(lambda i, j: i + j, self.rect.topleft, (36, 0)))
-                    elif legal_dir == "left":
-                        new_pos_loc = tuple(map(lambda i, j: i - j, self.rect.topleft, (36, 0)))
-    
-                    new_dist = distance.cityblock(list(new_pos_loc), list(player_loc))
-                    chase_options[legal_dir] = new_dist
-    
-                min_dist = min(chase_options.items(), key=lambda x : x[1])[1]
-                min_dist_directions = [key for (key, value) in chase_options.items() if value == min_dist]
-    
-                if len(min_dist_directions) == 1:
-                    self.best_chase_dir = min_dist_directions[0]
-                else:
-                    self.best_chase_dir = [x for x in min_dist_directions if x != self.previous_best_chase_dir_flip][0]
-    
-                self.previous_best_chase_dir = self.best_chase_dir
-                if self.previous_best_chase_dir == "up":
-                    self.previous_best_chase_dir_flip = "down"
-                elif self.previous_best_chase_dir == "down":
-                    self.previous_best_chase_dir_flip = "up"
-                elif self.previous_best_chase_dir == "left":
-                    self.previous_best_chase_dir_flip = "right"
-                elif self.previous_best_chase_dir == "right":
-                    self.previous_best_chase_dir_flip = "left"
-    
-                if random.choice([x for x in range(1, 101)]) <= self.chase_level:
-                    self.direction = self.best_chase_dir
-                else:
-                    self.direction = random.choice([x for x in legal_directions if x != self.best_chase_dir])
+                self.choose_direction(legal_directions, player_loc, visible_dot_loc)
+                
             else: # check that horizontal/vertical movement is proper
                 if pos_type == "horizontal":
                     if self.change_x == -self.speed: # already moving left, so keep it that way
@@ -136,7 +146,6 @@ class ghost(pygame.sprite.Sprite):
                         self.direction = "up"
                     elif self.change_y == self.speed: # already moving down, so keep it that way
                         self.direction = "down"
-
 
         # apply direction and speed changes once ghost reaches intersection
         if self.direction == "left":

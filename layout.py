@@ -1,59 +1,10 @@
-#import shlex
 import pygame
 import random
-#import platform
 from config import *
 import numpy as np
-#import subprocess as subp
 
 
-##Determine Monitor Resolution:
-#if platform.system() == "Windows":
-#    from win32api import GetSystemMetrics
-#    w_pix, h_pix = GetSystemMetrics(0), GetSystemMetrics(1)
-#elif platform.system() == "Darwin":
-#    p = subp.Popen(shlex.split("system_profiler SPDisplaysDataType"), stdout=subp.PIPE)
-#    output = subp.check_output(('grep', 'Resolution'), stdin=p.stdout)
-#    if '@' in output:
-#        w_pix, h_pix = [int(x.strip(" ")) for x in output.split(':')[-1].split("@")[0].split(' x ')]
-#    elif 'Retina' in output:
-#        w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("Retina")[0:1][0].split(' x ')]
-#    elif 'QHD/WQHD - Wide Quad High Definition' in output:
-#        w_pix, h_pix = [int(x) for x in output.split(":")[-1].split("(QHD/WQHD - Wide Quad High Definition)")[0:1][0].split(' x ')]
-#elif platform.system() == "Linux":
-#    output = subp.check_output("xdpyinfo  | grep -oP 'dimensions:\s+\K\S+'", shell=True).decode("utf-8")
-#    w_pix = int(output.split("x")[0])
-#    h_pix = int(output.split("x")[-1].split("\n")[0])
-#    
-#
-#print(w_pix, h_pix)
-#
-#aspect_ratio = w_pix / h_pix
-#
-#screen_width = round(w_pix / aspect_ratio)
-#screen_height = round(h_pix / aspect_ratio)
-
-#pic_pixels = 36
-#
-#grid_shape = (round(screen_height/pic_pixels), round(screen_width/pic_pixels))
-#
-#grid = np.zeros(grid_shape)
-#
-#for x, col in enumerate(grid):
-#    for y, y_value in enumerate(col):
-#        if x == 0 or x == grid.shape[0]-1:
-#            pass
-#        elif y == 0 or y == grid.shape[1]-1 :
-#            pass
-#        else:
-#            if (x, y) in [(1, 1), (grid.shape[0]-2, 1), (1, grid.shape[1]-2), (grid.shape[0]-2, grid.shape[1]-2)]:
-#                grid[x, y] = 3
-#            else:
-#                upVal, downVal, leftVal, rightVal = [grid[x-1, y], grid[x+1, y], grid[x, y-1], grid[x, y+1]]
-                
-                
-            
-def enviroment_setup(rand_num):
+def enviroment_setup(rand_num, num_dots):
     """Determines which grid is used for the trial as well as the player, ghosts,
     and dots locations. Since there are a variety of options to choose from, this
     information is randomized when a new trial is initialized."""
@@ -365,7 +316,7 @@ def enviroment_setup(rand_num):
                     intersection_4way.append(((j*36, i*36), [upVal, downVal, leftVal, rightVal], legal_directions, pos_type))
 
     dots_pos = [x[0] for x in intersection_2way+intersection_3way+intersection_4way if x[0] != player_start_pos]
-    dots_pos = random.sample(dots_pos, 15)
+    dots_pos = random.sample(dots_pos, num_dots)
     random.shuffle(dots_pos)
     dot_order_indices = [index+1 for index,value in enumerate(dots_pos)]
     dots_info = list(zip(dots_pos, dot_order_indices))

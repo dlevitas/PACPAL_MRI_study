@@ -12,16 +12,16 @@ ITI_list = [3] # sec (values used to create an exponential distribution of possi
 ITI_distribution_type = "exponential" # either "exponential" or "normal"
 end_run_buffer_time = 6 # sec
 
-safe_chase_level = 10 # integer ranging from 1-100
-threat_chase_level = 90  # integer ranging from 1-100
+safe_best_dir_level = 65 # integer ranging from 1-100
+threat_best_dir_level = 90 # integer ranging from 1-100
 sal_period_len = 15 # sec
 player_max_speed = 3 # (can be either 2 or 3)
 
 health_bump = 20 # pixels
 health_decay = 0.10 # px/sec. Decay rate of health bar, in pixels per second
-bonus_increase = 0.05 # $$ (1.00 = $1, 0.50 = $0.50, etc)
+bonus_increase = 0.03 # $$ (1.00 = $1, 0.50 = $0.50, etc)
 loss_penalty = 0.10 # $$. How much money is lost when caught by ghosts or when health reaches 0
-
+num_dots = 15 # how many dots there will be on each grid map
 
 # pygame variables
 keyboard_right_key = pygame.K_RIGHT
