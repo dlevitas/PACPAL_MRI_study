@@ -67,18 +67,18 @@ def main(threat_best_dir_level, ITI_distribution):
                                        player_max_speed+1]
     elif runID in ["1","2"]: # runs 1-2
         ghosts_threat_speed_options = [player_max_speed-1, 
-                                        player_max_speed, player_max_speed, 
-                                        player_max_speed+1, player_max_speed+1]
+                                        player_max_speed, 
+                                        player_max_speed+1]
     elif runID in ["3","4"]: # runs 3-4
         threat_best_dir_level = threat_best_dir_level+5
         ghosts_threat_speed_options = [player_max_speed-1, 
                                        player_max_speed, player_max_speed, 
-                                       player_max_speed+1, player_max_speed+1, player_max_speed+1]
+                                       player_max_speed+1, player_max_speed+1]
     elif runID in ["5","6"]: # runs 5-6
         threat_best_dir_level = threat_best_dir_level+10
         ghosts_threat_speed_options = [player_max_speed-1, 
                                        player_max_speed, player_max_speed, 
-                                       player_max_speed+1, player_max_speed+1, player_max_speed+1, player_max_speed+1]
+                                       player_max_speed+1, player_max_speed+1, player_max_speed+1]
     
     # set timers and index values for experiment
     cum_run_time = 0

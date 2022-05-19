@@ -93,7 +93,7 @@ class Instructions(object):
                 return False
 
         elif self.period == "end":
-            self.text = "Run #{} run will end in several seconds".format(self.runID)
+            self.text = "Run #{} will end in several seconds".format(self.runID)
             if self.cum_run_time >= self.end_buffer_time*1000:
                 return False
 

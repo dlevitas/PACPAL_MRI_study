@@ -19,7 +19,7 @@ player_max_speed = 3 # (can be either 2 or 3)
 
 health_bump = 25 # pixels
 health_decay = 0.10 # px/sec. Decay rate of health bar, in pixels per second
-bonus_increase = 0.04 # $$ (1.00 = $1, 0.50 = $0.50, etc)
+bonus_increase = 0.05 # $$ (1.00 = $1, 0.50 = $0.50, etc)
 loss_penalty = 0.10 # $$. How much money is lost when caught by ghosts or when health reaches 0
 num_dots = 15 # how many dots there will be (in total) on each grid map
 

@@ -258,9 +258,7 @@ class Game(object):
         info = {}
         ghost_locations = []
         ghost_distances_from_player_manhattan = []
-        ghost_distances_from_player_euclidean = []
         dot_distances_from_player_manhattan = []
-        dot_distances_from_player_euclidean = []
         info["grid_ID"] = self.grid_id
         info["player_start_pos"] = self.player.start_pos
         info["ghosts_start_pos"] = self.ghosts.start_pos
@@ -279,55 +277,35 @@ class Game(object):
             ghost_dist_from_player_manhattan = distance.cityblock(list(self.player.rect.topleft), list(g.rect.topleft))
             ghost_dist_from_player_manhattan = int(round(ghost_dist_from_player_manhattan, 0))
             ghost_distances_from_player_manhattan.append(ghost_dist_from_player_manhattan)
-            
-            ghost_dist_from_player_euclidean = distance.euclidean(list(self.player.rect.topleft), list(g.rect.topleft))
-            ghost_dist_from_player_euclidean = int(round(ghost_dist_from_player_euclidean, 0))
-            ghost_distances_from_player_euclidean.append(ghost_dist_from_player_euclidean)
-            
+                        
 
         for dot_loc in self.dots_info:
             dot_dist_from_player_manhattan = distance.cityblock(list(self.player.rect.topleft),list(dot_loc[0]))
             dot_dist_from_player_manhattan = int(round(dot_dist_from_player_manhattan, 0))
             dot_distances_from_player_manhattan.append(dot_dist_from_player_manhattan)
-            
-            dot_dist_from_player_euclidean = distance.euclidean(list(self.player.rect.topleft),list(dot_loc[0]))
-            dot_dist_from_player_euclidean = int(round(dot_dist_from_player_euclidean, 0))
-            dot_distances_from_player_euclidean.append(dot_dist_from_player_euclidean)
-
         
         if self.trial_end_reason == "caught":
             self.closest_ghost_dist_manhattan = 0
-            self.closest_ghost_dist_euclidean = 0
         else:
             if len(ghost_distances_from_player_manhattan) == 2:
                 self.closest_ghost_dist_manhattan = min(ghost_distances_from_player_manhattan)
-                self.closest_ghost_dist_euclidean = min(ghost_distances_from_player_euclidean)
             else:
-                self.closest_ghost_dist_manhattan = 0
-                self.closest_ghost_dist_euclidean = 0
-                
+                self.closest_ghost_dist_manhattan = 0                
             
         if self.trial_end_reason == "won":
             self.visible_dot_dist_manhattan = 0
-            self.visible_dot_dist_euclidean = 0
         else:
             if len(dot_distances_from_player_manhattan):
                 self.visible_dot_dist_manhattan = min(dot_distances_from_player_manhattan)
-                self.visible_dot_dist_euclidean = min(dot_distances_from_player_euclidean)
             else:
                 self.visible_dot_dist_manhattan = 0
-                self.visible_dot_dist_euclidean = 0
-
 
         info["ghosts_locs"] = ghost_locations
         info["all_dots_locs"] = [x[0] for x in self.dots_info]
         info["visible_dot_loc"] = self.visible_dot_loc
         info["ghosts_dists_from_player_manhattan"] = ghost_distances_from_player_manhattan
-        info["ghosts_dists_from_player_euclidean"] = ghost_distances_from_player_euclidean
         info["visible_dot_dist_from_player_manhattan"] = self.visible_dot_dist_manhattan
-        info["visible_dot_dist_from_player_euclidean"] = self.visible_dot_dist_euclidean
         info["closest_ghost_dist_manhattan"] = self.closest_ghost_dist_manhattan
-        info["closest_ghost_dist_euclidean"] = self.closest_ghost_dist_euclidean
         info["salience_period"] = self.sal_period
         try:
             info["ghosts_best_dir_level"] = self.ghosts.sprites()[0].best_dir_level
