@@ -29,10 +29,10 @@ Documentation for the PACMAN game:
 - 11). During threat period, ghosts aim to chase player. During safe period, ghosts aim to get closer to the dot that is visible to the player.
 
 - 12). Game specs:
-	- a). python version 3.8
-	- b). pygame version 2.0.2
-	- c). anaconda version 2020.07
-	- d). numpy version 1.19.5
-	- e). pandas version 0.24.2
-	- f). scipy version 1.7.1
-	- g). natsort version 8.1.0
+	- python version 3.8
+	- pygame version 2.0.2
+	- anaconda version 2020.07
+	- numpy version 1.19.5
+	- pandas version 0.24.2
+	- scipy version 1.7.1
+	- natsort version 8.1.0
