@@ -9,7 +9,7 @@ class Game(object):
     def __init__(self, player_max_speed, grid, player_start_pos, ghosts_start_pos, 
                  dots_info, grid_id, horizontal, vertical, intersection_2way, 
                  intersection_3way, intersection_4way, all_points_info, cum_bonus, 
-                 sal_period, loss_penalty, health_decay, ghosts_threat_speed_options,
+                 ghost_color, loss_penalty, health_decay, ghosts_red_speed_options,
                  health_bump, bonus_increase):
 
         self.run_over = True
@@ -20,7 +20,7 @@ class Game(object):
         self.font = pygame.font.Font(None, 30) # font for displaying the cumulative bonus on the screen
         self.trial_end_reason = "N/A" # caught, no_health, or won
         self.player_max_speed = player_max_speed # fastest speed player can go
-        self.sal_period = sal_period
+        self.ghost_color = ghost_color
         self.health_decay = health_decay
 
         # Create the player
@@ -57,7 +57,7 @@ class Game(object):
 
         self.all_points_info = all_points_info
         
-        self.ghosts_threat_speed_options = ghosts_threat_speed_options
+        self.ghosts_red_speed_options = ghosts_red_speed_options
 
         for h in horizontal:
             self.horizontal_blocks.add(Block(h[0][0]+8, h[0][1]+8, RED, 16, 16))
@@ -68,8 +68,8 @@ class Game(object):
 
         # Create the ghosts
         self.ghosts = pygame.sprite.Group()
-        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_max_speed, self.ghosts_threat_speed_options))
-        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_max_speed, self.ghosts_threat_speed_options))
+        self.ghosts.add(ghost(ghosts_start_pos[0][0], ghosts_start_pos[0][1], 0, self.player_max_speed, self.ghosts_red_speed_options))
+        self.ghosts.add(ghost(ghosts_start_pos[1][0], ghosts_start_pos[1][1], 0, -self.player_max_speed, self.ghosts_red_speed_options))
         self.ghosts.start_pos = ghosts_start_pos
 
 
@@ -177,8 +177,8 @@ class Game(object):
         return False              
             
             
-    def run_logic(self, rand_num, sal_period, ghost_best_dir_level):
-        self.sal_period = sal_period
+    def run_logic(self, rand_num, ghost_color, ghost_best_dir_level):
+        self.ghost_color = ghost_color
         self.ghost_best_dir_level = ghost_best_dir_level
 
         if self.trial_over:
@@ -188,8 +188,8 @@ class Game(object):
                           ghosts_start_pos, dots_info, grid_id, horizontal, 
                           vertical, intersection_2way, intersection_3way, 
                           intersection_4way, all_points_info, self.cum_bonus, 
-                          self.sal_period, loss_penalty, self.health_decay, 
-                          self.ghosts_threat_speed_options, self.health_bump,
+                          self.ghost_color, loss_penalty, self.health_decay, 
+                          self.ghosts_red_speed_options, self.health_bump,
                           self.bonus_increase)
             self.run_over = False
             self.trial_over = False
@@ -225,7 +225,7 @@ class Game(object):
                 return True
             
             self.trial_over = self.player.trial_over
-            self.ghosts.update(self.horizontal_blocks, self.vertical_blocks, self.intersection_blocks, self.player.rect.topleft, self.visible_dot_loc, self.all_points_info, self.sal_period, self.ghost_best_dir_level)
+            self.ghosts.update(self.horizontal_blocks, self.vertical_blocks, self.intersection_blocks, self.player.rect.topleft, self.visible_dot_loc, self.all_points_info, self.ghost_color, self.ghost_best_dir_level)
             
             self.dots_group.add(Ellipse(self.dots_info[0][0][0]+10, self.dots_info[0][0][1]+10, WHITE, 15, 15))
             self.visible_dot_loc = self.dots_info[0][0]
@@ -306,7 +306,7 @@ class Game(object):
         info["ghosts_dists_from_player_manhattan"] = ghost_distances_from_player_manhattan
         info["visible_dot_dist_from_player_manhattan"] = self.visible_dot_dist_manhattan
         info["closest_ghost_dist_manhattan"] = self.closest_ghost_dist_manhattan
-        info["salience_period"] = self.sal_period
+        info["ghost_color"] = self.ghost_color
         try:
             info["ghosts_best_dir_level"] = self.ghosts.sprites()[0].best_dir_level
             info["ghosts_speed"] = self.ghosts.sprites()[0].speed
