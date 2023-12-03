@@ -18,15 +18,15 @@ except:
 # Begin
 ITI_distribution = generate_ITI_distribution(ITI_list, ITI_distribution_type)
 
-def main(threat_best_dir_level, ITI_distribution):
+def main(red_best_dir_level, ITI_distribution):
     """Runs the PACPAL game. All classes and functions are referenced here.
     
     Parameters
     ----------
-    threat_best_dir_level : int
-        Threat best direction level threshold (0-100) of the ghosts. The value
+    red_best_dir_level : int
+        Red best direction level threshold (0-100) of the ghosts. The value
         corresponds to the % likelihood that the ghosts will seek to chase
-        player at each intersection, during the threat salience period.
+        player at each intersection, during the red ghost color/behavior period.
         
     ITI_distribution: list
         An inter-trial interval (ITI) distribution (exponential or normal)
@@ -61,29 +61,29 @@ def main(threat_best_dir_level, ITI_distribution):
     Meant to keep player(s) engaged throughout the experiment.
     """
     if runID == "0": # practice
-        threat_best_dir_level = threat_best_dir_level-10
-        ghosts_threat_speed_options = [player_max_speed-1, player_max_speed-1, player_max_speed-1, player_max_speed-1,
+        red_best_dir_level = red_best_dir_level-10
+        ghosts_red_speed_options = [player_max_speed-1, player_max_speed-1, player_max_speed-1, player_max_speed-1,
                                        player_max_speed,
                                        player_max_speed+1]
     elif runID in ["1","2"]: # runs 1-2
-        ghosts_threat_speed_options = [player_max_speed-1, 
+        ghosts_red_speed_options = [player_max_speed-1, 
                                         player_max_speed, 
                                         player_max_speed+1]
     elif runID in ["3","4"]: # runs 3-4
-        threat_best_dir_level = threat_best_dir_level+5
-        ghosts_threat_speed_options = [player_max_speed-1, 
+        red_best_dir_level = red_best_dir_level+5
+        ghosts_red_speed_options = [player_max_speed-1, 
                                        player_max_speed, player_max_speed, 
                                        player_max_speed+1, player_max_speed+1]
     elif runID in ["5","6"]: # runs 5-6
-        threat_best_dir_level = threat_best_dir_level+10
-        ghosts_threat_speed_options = [player_max_speed-1, 
+        red_best_dir_level = red_best_dir_level+10
+        ghosts_red_speed_options = [player_max_speed-1, 
                                        player_max_speed, player_max_speed, 
                                        player_max_speed+1, player_max_speed+1, player_max_speed+1]
     
     # set timers and index values for experiment
     cum_run_time = 0
     logging_timer = 0
-    sal_period_timer_index = 1
+    ghost_color_timer_index = 1
     logging_timer_index = 1
     ITI_index = 0
     cum_ITI_buffer_time = 0
@@ -94,9 +94,9 @@ def main(threat_best_dir_level, ITI_distribution):
     start_buffer = True
     end_buffer = True
 
-    # salience period variables
-    sal_period_info = {"safe": safe_best_dir_level, "threat": threat_best_dir_level}
-    sal_period, ghost_best_dir_level = random.choice(list(sal_period_info.items()))
+    # ghost color/behavior period variables
+    ghost_color_info = {"green": green_best_dir_level, "red": red_best_dir_level}
+    ghost_color, ghost_best_dir_level = random.choice(list(ghost_color_info.items()))
 
     # trial variables information
     trial = 1
@@ -120,7 +120,7 @@ def main(threat_best_dir_level, ITI_distribution):
     game = Game(player_max_speed, grid, player_start_pos, ghosts_start_pos, 
                 dots_info, grid_id, horizontal, vertical, intersection_2way, 
                 intersection_3way, intersection_4way, all_points_info, cum_bonus, 
-                sal_period, loss_penalty, health_decay, ghosts_threat_speed_options,
+                ghost_color, loss_penalty, health_decay, ghosts_red_speed_options,
                 health_bump, bonus_increase)
     instructions = Instructions("pre", 0, 0, 0, "N/A", run_length, 
                                 end_run_buffer_time, runID, loss_penalty)
@@ -157,21 +157,21 @@ def main(threat_best_dir_level, ITI_distribution):
         else:
             raise ValueError("Unknown response device specified. Please use 'keyboard', 'mri', or 'test'.")
         # game logic is here, including checking for when the trial ends
-        trial_over = game.run_logic(rand_num, sal_period, ghost_best_dir_level)
+        trial_over = game.run_logic(rand_num, ghost_color, ghost_best_dir_level)
         # draw the current frame
         game.display_frame(screen)
         
         if not trial_over:
             if not len(trial_info_list): # let first row of log be the trial onset information
                 info = game.log_information()
-                info["salience_period"] = sal_period
+                info["ghost_color"] = ghost_color
                 info["ghosts_best_dir_level"] = ghost_best_dir_level
                 info["cumulative_run_time"] = (pygame.time.get_ticks() - pre_run_elapsed_time)/1000
                 info["ITI_length"] = ITI_buffer_time
                 trial_info_list.append(info)
             
             logging_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000
-            sal_period_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000              
+            ghost_color_timer = pygame.time.get_ticks() - pre_run_elapsed_time - start_run_buffer_time*1000 - cum_ITI_buffer_time*1000              
 
             # log game information every log interval, but not in-between trials
             if logging_timer/logging_timer_index >= log_interval*1000:
@@ -183,10 +183,10 @@ def main(threat_best_dir_level, ITI_distribution):
                 info["ITI_length"] = ITI_buffer_time
                 trial_info_list.append(info)
 
-            # update salience period
-            if sal_period_timer/sal_period_timer_index >= sal_period_len*1000:
-                sal_period, ghost_best_dir_level = [x for x in sal_period_info.items() if x[0] != sal_period][0]
-                sal_period_timer_index += 1
+            # update ghost color/behavior period
+            if ghost_color_timer/ghost_color_timer_index >= ghost_color_len*1000:
+                ghost_color, ghost_best_dir_level = [x for x in ghost_color_info.items() if x[0] != ghost_color][0]
+                ghost_color_timer_index += 1
 
         else: # trial ends, enter inter trial interval (ITI) buffer period
             if len(trial_info_list): # add log information from trial offset, even if not at log interval
@@ -244,4 +244,4 @@ def main(threat_best_dir_level, ITI_distribution):
 
 # Run the experiment
 if __name__ == '__main__':
-    main(threat_best_dir_level, ITI_distribution)
+    main(red_best_dir_level, ITI_distribution)

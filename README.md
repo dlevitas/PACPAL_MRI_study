@@ -24,9 +24,9 @@ Documentation for the PACMAN game:
 
 - 9). Although each trial contains multiple dots, only one is visible to the player at a time. 
 
-- 10). There are two salience periods: safe (ghosts turn green) and threat (ghosts turn red).
+- 10). There are two ghost colors pertaining to their behavior: green (ghosts orient to visible dot, moving at slower pace) and red (ghosts chase player and can move faster).
 
-- 11). During threat period, ghosts aim to chase player. During safe period, ghosts aim to get closer to the dot that is visible to the player.
+- 11). During red ghost color period, ghosts aim to chase player. During green ghost color period, ghosts aim to get closer to the dot that is visible to the player.
 
 - 12). Game specs:
 	- python version 3.8

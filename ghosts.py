@@ -7,7 +7,7 @@ from scipy.spatial import distance
 
 class Block(pygame.sprite.Sprite):
     """Information pertaining to the ghosts block shape."""
-    
+
     def __init__(self, x, y, color, width, height):
         # call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
@@ -16,11 +16,11 @@ class Block(pygame.sprite.Sprite):
         self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        
+
 
 class Ellipse(pygame.sprite.Sprite):
     """Information pertaining to the Player ellipse shape."""
-    
+
     def __init__(self, x, y, color, width, height):
         # call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
@@ -36,18 +36,18 @@ class Ellipse(pygame.sprite.Sprite):
 
 class ghost(pygame.sprite.Sprite):
     "Generating the ghosts and all their aspects."""
-    
-    def __init__(self, x, y, change_x, change_y, ghosts_threat_speed_options):
+
+    def __init__(self, x, y, change_x, change_y, ghosts_red_speed_options):
         # call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         self.change_x = change_x
         self.change_y = change_y
-        self.image = pygame.image.load("ghosts_threat.png").convert_alpha()
+        self.image = pygame.image.load("ghosts_red.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.best_dir_level = 10
-        self.ghosts_threat_speed_options = ghosts_threat_speed_options
-        self.speed = min(self.ghosts_threat_speed_options)
+        self.ghosts_red_speed_options = ghosts_red_speed_options
+        self.speed = min(self.ghosts_red_speed_options)
         self.direction = "NA"
         self.upVal = 0
         self.downVal = 0
@@ -57,7 +57,7 @@ class ghost(pygame.sprite.Sprite):
         self.best_dir = ""
         self.previous_best_dir = ""
         self.previous_best_dir_flip = ""
-        
+
     def choose_direction(self, legal_directions, player_loc, visible_dot_loc):
         direction_options = {}
         for legal_dir in legal_directions:
@@ -70,11 +70,11 @@ class ghost(pygame.sprite.Sprite):
             elif legal_dir == "left":
                 new_pos_loc = tuple(map(lambda i, j: i - j, self.rect.topleft, (36, 0)))
 
-            if self.sal_period == "threat":            
+            if self.ghost_color == "red":            
                 new_dist = distance.cityblock(list(new_pos_loc), list(player_loc))
             else:
                 new_dist = distance.cityblock(list(new_pos_loc), list(visible_dot_loc))
-                
+
             direction_options[legal_dir] = new_dist
 
         min_dist = min(direction_options.items(), key=lambda x : x[1])[1]
@@ -99,50 +99,50 @@ class ghost(pygame.sprite.Sprite):
             self.direction = self.best_dir
         else:
             self.direction = random.choice([x for x in legal_directions if x != self.best_dir])
-        
+
         return self
-    
-    def update(self, horizontal_blocks, vertical_blocks, intersection_blocks, player_loc, visible_dot_loc, all_points_info, sal_period, best_dir_level):
+
+    def update(self, horizontal_blocks, vertical_blocks, intersection_blocks, player_loc, visible_dot_loc, all_points_info, ghost_color, best_dir_level):
         self.rect.x += self.change_x
         self.rect.y += self.change_y
-        
-        self.sal_period = sal_period
+
+        self.ghost_color = ghost_color
         self.best_dir_level = best_dir_level
 
         self.distance_from_player = distance.cityblock(list(self.rect.topleft), list(player_loc))
-        
-        # load ghost image based on salience condition period
-        if self.sal_period == "safe":
-            self.image = pygame.image.load("ghosts_safe.png").convert_alpha()
+
+        # load ghost image based on ghost color/behavior period
+        if self.ghost_color == "green":
+            self.image = pygame.image.load("ghosts_green.png").convert_alpha()
         else:
-            self.image = pygame.image.load("ghosts_threat.png").convert_alpha()
-            
+            self.image = pygame.image.load("ghosts_red.png").convert_alpha()
+
 
         if self.rect.topleft in [x[0] for x in all_points_info]:
             info = [x for x in all_points_info if self.rect.topleft in x][0] #always list of 1 list, so take first (i.e. only)
             self.upVal, self.downVal, self.leftVal, self.rightVal = info[1]
             legal_directions = info[2]
             pos_type = info[3]
-    
+
             # tracking/chasing info for ghosts
             if pos_type in ["2way", "3way", "4way"]:
-                if self.sal_period == "threat":
-                    self.speed = random.choice(self.ghosts_threat_speed_options)
+                if self.ghost_color == "red":
+                    self.speed = random.choice(self.ghosts_red_speed_options)
                 else:
-                    self.speed = min(self.ghosts_threat_speed_options)
-                
+                    self.speed = min(self.ghosts_red_speed_options)
+
                 self.choose_direction(legal_directions, player_loc, visible_dot_loc)
-                
+
             else: # check that horizontal/vertical movement is proper
                 if pos_type == "horizontal":
-                    if self.change_x == -self.speed: # already moving left, so keep it that way
+                    if self.change_x == -self.speed:  # already moving left, so keep it that way
                         self.direction = "left"
-                    elif self.change_x == self.speed: # already moving right, so keep it that way
+                    elif self.change_x == self.speed:  # already moving right, so keep it that way
                         self.direction = "right"
                 elif pos_type == "vertical":
-                    if self.change_y == -self.speed: # already moving up, so keep it that way
+                    if self.change_y == -self.speed:  # already moving up, so keep it that way
                         self.direction = "up"
-                    elif self.change_y == self.speed: # already moving down, so keep it that way
+                    elif self.change_y == self.speed:  # already moving down, so keep it that way
                         self.direction = "down"
 
         # apply direction and speed changes once ghost reaches intersection
@@ -158,6 +158,5 @@ class ghost(pygame.sprite.Sprite):
         elif self.direction == "down":
             self.change_x = 0
             self.change_y = self.speed
-                       
 
         return self
